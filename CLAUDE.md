@@ -71,6 +71,12 @@ git commit -m "descriptive message"
 git push
 ```
 
+**SSH Authentication:**
+- Repository uses SSH authentication: `git@github.com:RicardoGestiona/app-congreso.git`
+- SSH key configured: `~/.ssh/id_ed25519`
+- Account: RicardoGestiona
+- Push/pull operations work without password prompts
+
 ## Key Features & Implementation
 
 ### 1. Agenda System
