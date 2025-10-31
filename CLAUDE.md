@@ -28,8 +28,8 @@ verify_security.sql           # Security audit script
 ```
 
 ### Database Configuration
-- **Supabase credentials** are hardcoded in `index.html:3317-3318`
-- **Not using `.env`** - credentials are directly in the HTML file
+- **Supabase credentials** are hardcoded in `index.html` (search for `const supabaseUrl` around line 3317)
+- **Not using `.env`** - credentials are directly in the HTML file for simplicity
 - RLS is enabled on all 20 public tables with 40+ granular policies
 - 6 security-hardened functions with fixed `search_path`
 - 3 views with `security_invoker = true`
@@ -59,23 +59,26 @@ Then open `http://localhost:8000` in your browser.
 # 4. Run verify_security.sql (audit check)
 ```
 
-### Git Workflow (Semi-Automated)
-The project uses Claude Code hooks configured in `.claude/settings.local.json`:
+### Git Workflow (Automated via Claude Code Hooks)
+The project uses automated Git hooks configured in `.claude/settings.local.json`:
 
-- **On session start:** `git pull` (auto-sync)
-- **On session end:** `git add .` + `git status` (auto-stage)
+- **On session start:** Automatically runs `git pull` to sync latest changes
+- **On session end:** Automatically runs `git add .` and `git status` if there are changes
 
-**Manual steps required:**
-```bash
-git commit -m "descriptive message"
-git push
-```
+**Important:** Commits and pushes are pre-approved in permissions:
+- `Bash(git add:*)` - Auto-staging is allowed
+- `Bash(git commit:*)` - Commit operations are pre-approved
+- `Bash(git push:*)` - Push operations are pre-approved
 
-**SSH Authentication:**
-- Repository uses SSH authentication: `git@github.com:RicardoGestiona/app-congreso.git`
-- SSH key configured: `~/.ssh/id_ed25519`
-- Account: RicardoGestiona
-- Push/pull operations work without password prompts
+**Authentication:**
+- Repository uses SSH authentication
+- SSH keys configured locally (not tracked in git)
+
+### MCP Servers Enabled
+The project has MCP servers configured for enhanced capabilities:
+- **Playwright Server** (`mcp__playwright-server`) - Browser automation for testing
+  - Pre-approved tools: navigate, screenshot, type, click
+- **Context7** - Additional context management
 
 ## Key Features & Implementation
 
@@ -86,7 +89,7 @@ git push
 - Day 1 visible by default, Days 2-3 hidden (`display: none`)
 - Session types: keynote, talk, workshop, break, networking
 - Title positioned outside `.section` container for consistency
-- Function: `filterDay(day)` at `index.html:~4032`
+- Function: `filterDay(day)` - search in index.html
 
 ### 2. Information of Interest (Locations)
 - Interactive maps section with Google Maps embeds
@@ -101,7 +104,7 @@ git push
 - Form in welcome screen with name + email
 - Checkbox for legal notice acceptance (required)
 - Dual storage: Supabase `attendees` table + localStorage fallback
-- Function: `submitWelcome()` at `index.html:~3400`
+- Function: `submitWelcome()` - search in index.html
 
 ### 4. Competitive Voting System (Ponencias)
 - Card-based design with title, subtitle, author, organization
@@ -110,7 +113,7 @@ git push
 - Real-time results screen accessible via `?results` or `#results`
 - Auto-refresh every 2 minutes (120 seconds) to prevent flicker
 - Winner badge with animated gold styling
-- Functions: `submitVotes()`, `loadVotingResults()` at `index.html:~3600-3800`
+- Functions: `submitVotes()`, `loadVotingResults()` - search in index.html
 
 ### 5. Poster Voting System
 - Maximum 3 votes per user/device
@@ -119,7 +122,7 @@ git push
 - Winner badge positioned in top-right corner (floating, not inline)
 - Results screen: `?poster-results` or `#poster-results`
 - Auto-refresh every 2 minutes (120 seconds)
-- State management: `posterVotingState` object at `index.html:~3936`
+- State management: `posterVotingState` object - search in index.html
 - Validation trigger: `validate_max_poster_votes` (database-level)
 
 ### 6. Tags/Ideas System
@@ -140,7 +143,7 @@ window.location.hash = '#screen-name';
 ```
 
 ### Supabase Client Initialization
-Located at `index.html:3317-3319`:
+Search for "Configuración de Supabase" in `index.html` (around line 3316):
 ```javascript
 const supabaseUrl = 'https://dacpkbftkzwnpnhirgny.supabase.co';
 const supabaseKey = 'eyJ...'; // Anonymous key
@@ -149,7 +152,7 @@ const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 ### State Management
 Global objects for each feature:
-- `posterVotingState` - Poster voting state (line ~3936)
+- `posterVotingState` - Poster voting state (search for "posterVotingState" in index.html)
 - Form validation states in respective screen functions
 - No framework - pure vanilla JS state management
 
@@ -197,7 +200,7 @@ Complex gradient system with:
 ## Common Tasks
 
 ### Updating Supabase Credentials
-1. Edit `index.html:3317-3318`
+1. Search for "Configuración de Supabase" in `index.html` (around line 3316)
 2. Update both `supabaseUrl` and `supabaseKey`
 3. Test connection by checking browser console for errors
 
@@ -209,9 +212,9 @@ Complex gradient system with:
 5. Initialize data loading in screen's entry function
 
 ### Modifying Voting Rules
-- Talk voting scores: Search for `const scores = [5, 3, 2, 1]` (line ~3600)
-- Poster vote limit: Change `maxVotes: 3` in `posterVotingState` (line ~3936)
-- Auto-refresh intervals: Currently set to 120000ms (2 minutes) for both voting systems
+- Talk voting scores: Search for `const scores = [5, 3, 2, 1]` in index.html
+- Poster vote limit: Search for `maxVotes:` in `posterVotingState` object
+- Auto-refresh intervals: Search for `setInterval` - currently set to 120000ms (2 minutes)
 
 ### Updating Location Maps
 1. Locations are in `locations-screen` section
@@ -265,30 +268,48 @@ Expected: 0 errors, 0 warnings, 0 suggestions
 
 ## Important Context for AI Assistants
 
-1. **Single-file architecture**: All CSS, HTML, and JS are in `index.html`. Don't suggest splitting unless explicitly requested.
+### Architecture Decisions (Do Not Change Without User Request)
 
-2. **No build process**: Direct browser execution. No webpack, vite, or bundler. Minification is manual for production.
+1. **Single-file architecture**: All CSS, HTML, and JS are in `index.html` (~5000+ lines). Don't suggest splitting into separate files unless explicitly requested.
 
-3. **RLS is critical**: Any database changes MUST include RLS policies. Run security verification after schema changes.
+2. **No build process**: Direct browser execution. No webpack, vite, bundler, or npm scripts. Minification is manual for production.
 
-4. **Device fingerprinting**: Used for anonymous voting. Generated from browser characteristics and stored in localStorage.
+3. **No framework**: Pure vanilla JavaScript. No React, Vue, Angular, or any JS framework. Keep it simple.
 
-5. **Dual storage pattern**: Most features save to Supabase first, fall back to localStorage on error. This is intentional.
+4. **Hardcoded credentials**: Supabase credentials are directly in HTML for simplicity. This is intentional for this project.
 
-6. **Hash-based routing**: Use `window.location.hash` for navigation. No SPA framework or router library.
+### Critical Security & Data Patterns
 
-7. **Screen management**: Single function `showScreen(screenId)` controls all view transitions. Maintains active state in `currentScreen` variable.
+5. **RLS is critical**: Any database changes MUST include RLS policies. Run `verify_security.sql` after schema changes.
 
-8. **Auto-refresh patterns**: Results screens use `setInterval` with state management to prevent flicker during updates. Always check existing data before re-rendering. Current interval: 120000ms (2 minutes).
+6. **Device fingerprinting**: Used for anonymous voting. Generated from browser characteristics and stored in localStorage.
 
-9. **Session management**: Inline scripts check `localStorage` before showing welcome overlay. If session exists, overlay stays hidden and user greeting appears immediately. Function: `checkExistingSession()`.
+7. **Dual storage pattern**: Most features save to Supabase first, fall back to localStorage on error. This is intentional for offline resilience.
 
-10. **Legal notice**: Updated to include maps functionality with explicit "no tracking" guarantee. Maps redirect to user's default app without collecting navigation data.
+### Navigation & UI Patterns
 
-11. **UI consistency**: Titles should be outside `.section` containers, aligned with other sections. Active button states use turquoise gradient (#00D9C0 → #00F5E0) consistently across all features.
+8. **Hash-based routing**: Use `window.location.hash` for navigation. No SPA framework or router library. Routes: `#results`, `#poster-results`, etc.
+
+9. **Screen management**: Single function `showScreen(screenId)` controls all view transitions. Maintains active state in `currentScreen` variable.
+
+10. **Auto-refresh patterns**: Results screens use `setInterval` with state management to prevent flicker during updates. Always check existing data before re-rendering. Current interval: 120000ms (2 minutes).
+
+11. **Session management**: Inline scripts check `localStorage` before showing welcome overlay. If session exists, overlay stays hidden and user greeting appears immediately. Function: `checkExistingSession()`.
+
+12. **Legal notice**: Updated to include maps functionality with explicit "no tracking" guarantee. Maps redirect to user's default app without collecting navigation data.
+
+13. **UI consistency**: Titles should be outside `.section` containers, aligned with other sections. Active button states use turquoise gradient (#00D9C0 → #00F5E0) consistently across all features.
+
+## Additional Documentation
+
+- **README.md** - Spanish-language project overview with setup instructions
+- **POSTER_VOTING_README.md** - Detailed poster voting system documentation
+- **SECURITY_FIX_GUIDE.md** - Security fixes and RLS policy documentation
+- **PROXY-CONFIG.md** - Git proxy configuration for network environments
+- **TESTING_REPORT.md** / **TAGS_FIX_TEST_REPORT.md** - Test reports and debugging logs
 
 ## Last Updated
 
-**Date:** 2025-10-27
+**Date:** 2025-10-31
 **Version:** 1.1.0-beta
 **Security Status:** Supabase Security Advisor - 100% Clean (0 errors, 0 warnings)
