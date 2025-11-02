@@ -3225,10 +3225,10 @@
                         Has seleccionado puntuaciones pero no las has guardado. ¿Quieres salir sin guardar?
                     </p>
                     <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                        <button onclick="closeUnsavedModal()" style="padding: 16px 32px; border: 3px solid #00D9C0; background: white; color: #006B7D; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0, 217, 192, 0.2);" onmouseover="this.style.background='#00D9C0'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='#006B7D';">
-                            ← Volver
+                        <button onclick="registerAndLeave()" style="padding: 16px 32px; border: none; background: linear-gradient(135deg, #00D9C0, #00F5E0); color: white; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0, 217, 192, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 217, 192, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0, 217, 192, 0.3)';">
+                            📊 Registrar ahora
                         </button>
-                        <button onclick="confirmLeaveWithoutSaving()" style="padding: 16px 32px; border: none; background: linear-gradient(135deg, #0B7A8F, #006B7D); color: white; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(11, 122, 143, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(11, 122, 143, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(11, 122, 143, 0.3)';">
+                        <button onclick="confirmLeaveWithoutSaving()" style="padding: 16px 32px; border: 3px solid #00D9C0; background: white; color: #006B7D; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0, 217, 192, 0.2);" onmouseover="this.style.background='#f8d7da'; this.style.color='#721c24'; this.style.borderColor='#dc3545';" onmouseout="this.style.background='white'; this.style.color='#006B7D'; this.style.borderColor='#00D9C0';">
                             Salir de todos modos →
                         </button>
                     </div>
@@ -4004,7 +4004,7 @@
         }
 
         // Función para enviar todos los votos
-        async function submitAllVotes() {
+        async function submitAllVotes(redirectToHome = false) {
             const messageDiv = document.getElementById('vote-message');
             const submitBtn = document.getElementById('submit-votes-btn');
 
@@ -4031,9 +4031,11 @@
                 return;
             }
 
-            // Deshabilitar botón mientras se envía
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Enviando votos...';
+            // Deshabilitar botón mientras se envía (si existe)
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Enviando votos...';
+            }
 
             try {
                 // Obtener hash del usuario
@@ -4071,8 +4073,10 @@
                             ❌ Error al registrar la votación. Inténtalo de nuevo.
                         </div>
                     `;
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '📊 Registrar Votación';
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '📊 Registrar Votación';
+                    }
                 } else {
                     console.log('✅ Votos registrados exitosamente:', data);
 
@@ -4081,12 +4085,18 @@
                     votesFullyRegistered = true; // Marcar como registrado oficialmente
 
                     // Pequeña pausa para dar feedback visual
-                    submitBtn.textContent = '✓ ¡Enviado!';
-                    submitBtn.style.background = '#28a745';
+                    if (submitBtn) {
+                        submitBtn.textContent = '✓ ¡Enviado!';
+                        submitBtn.style.background = '#28a745';
+                    }
 
-                    // Redirigir a pantalla de confirmación después de 1 segundo
+                    // Redirigir según el contexto
                     setTimeout(() => {
-                        showScreen('vote-confirmation-screen');
+                        if (redirectToHome) {
+                            showScreen('home-screen');
+                        } else {
+                            showScreen('vote-confirmation-screen');
+                        }
                     }, 1000);
                 }
 
@@ -4097,8 +4107,10 @@
                         ❌ Error de conexión. Verifica tu internet e inténtalo de nuevo.
                     </div>
                 `;
-                submitBtn.disabled = false;
-                submitBtn.textContent = '📊 Registrar Votación';
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '📊 Registrar Votación';
+                }
             }
         }
 
@@ -4155,6 +4167,13 @@
         function confirmLeaveWithoutSaving() {
             closeUnsavedModal();
             showScreen('home-screen');
+        }
+
+        // Función para registrar votos y salir
+        async function registerAndLeave() {
+            closeUnsavedModal();
+            // Llamar a submitAllVotes con parámetro para redirigir a home
+            await submitAllVotes(true);
         }
 
         // Función para actualizar contador de votos
