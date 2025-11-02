@@ -3831,6 +3831,9 @@
 
             // Actualizar estado del botón "Registrar Votación"
             updateSubmitButtonState();
+
+            // Actualizar estado del botón "Guardar Votación"
+            updateSaveButtonState();
         }
 
         // Función para actualizar el estado del botón "Registrar Votación"
@@ -3849,6 +3852,25 @@
                 submitBtn.disabled = true;
                 submitBtn.style.opacity = '0.5';
                 submitBtn.style.cursor = 'not-allowed';
+            }
+        }
+
+        // Función para actualizar el estado del botón "Guardar Votación"
+        function updateSaveButtonState() {
+            const saveBtn = document.getElementById('save-votes-btn');
+            if (!saveBtn) return;
+
+            // Deshabilitar si la votación ya está registrada oficialmente
+            if (votesFullyRegistered) {
+                saveBtn.disabled = true;
+                saveBtn.style.opacity = '0.5';
+                saveBtn.style.cursor = 'not-allowed';
+                saveBtn.title = 'La votación ya está registrada oficialmente';
+            } else {
+                saveBtn.disabled = false;
+                saveBtn.style.opacity = '1';
+                saveBtn.style.cursor = 'pointer';
+                saveBtn.title = '';
             }
         }
 
@@ -3978,7 +4000,7 @@
                 // Cargar votos desde Supabase
                 const { data: votes, error } = await supabaseClient
                     .from('votes')
-                    .select('voting_topic_id, selected_options')
+                    .select('voting_topic_id, selected_options, is_partial')
                     .eq('device_fingerprint', userHash);
 
                 if (error) {
@@ -4043,6 +4065,13 @@
                         }
                     }
                 });
+
+                // Verificar si todos los votos están registrados (is_partial === false)
+                const allVotesRegistered = votes.every(vote => vote.is_partial === false);
+                if (allVotesRegistered && votes.length === 6) {
+                    votesFullyRegistered = true;
+                    console.log('✅ Votación completa ya registrada oficialmente');
+                }
 
                 // Actualizar disponibilidad de botones
                 updateButtonsAvailability();
