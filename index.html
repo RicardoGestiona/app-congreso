@@ -3858,11 +3858,26 @@
                 console.error('Error al guardar votos:', error);
                 saveBtn.disabled = false;
                 saveBtn.textContent = '💾 Guardar Votación';
+
+                let errorMessage = 'Error al guardar. Inténtalo de nuevo.';
+                if (error.message === 'No se pudo obtener identificador de usuario') {
+                    errorMessage = 'Debes registrar tu asistencia primero para poder votar.';
+                } else if (error.message) {
+                    errorMessage = `Error: ${error.message}`;
+                }
+
                 messageDiv.innerHTML = `
                     <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 10px; border-left: 4px solid #dc3545;">
-                        ❌ Error al guardar. Inténtalo de nuevo.
+                        ❌ ${errorMessage}
                     </div>
                 `;
+
+                console.error('Detalles del error:', {
+                    message: error.message,
+                    code: error.code,
+                    details: error.details,
+                    hint: error.hint
+                });
             }
         }
 
