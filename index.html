@@ -432,6 +432,22 @@
             transform: translateY(-1px);
         }
 
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:disabled::before {
+            display: none;
+        }
+
         .form-group {
             margin: 15px 0;
         }
@@ -3656,16 +3672,24 @@
                 container.appendChild(ponenciaCard);
             });
 
-            // Añadir botón de registro al final
+            // Añadir botones de guardado y registro al final
             const submitButton = document.createElement('div');
             submitButton.style.cssText = 'text-align: center; grid-column: 1 / -1; width: 100%;';
             submitButton.innerHTML = `
-                <button id="submit-votes-btn" class="btn" onclick="submitAllVotes()" style="margin-top: 30px; font-size: 18px; padding: 20px;">
-                    📊 Registrar Votación
-                </button>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 30px;">
+                    <button id="save-votes-btn" class="btn" onclick="savePartialVotes()" style="font-size: 18px; padding: 20px; background: linear-gradient(135deg, #0B7A8F, #006B7D); flex: 1; min-width: 200px; max-width: 300px;">
+                        💾 Guardar Votación
+                    </button>
+                    <button id="submit-votes-btn" class="btn" onclick="submitAllVotes()" style="font-size: 18px; padding: 20px; flex: 1; min-width: 200px; max-width: 300px;" disabled>
+                        📊 Registrar Votación
+                    </button>
+                </div>
                 <div id="vote-message" style="margin-top: 15px;"></div>
             `;
             container.appendChild(submitButton);
+
+            // Cargar votos guardados si existen
+            loadPartialVotes();
         }
 
         // Función para seleccionar una opción (sin enviar todavía)
@@ -3745,6 +3769,189 @@
                     }
                 }
             });
+
+            // Actualizar estado del botón "Registrar Votación"
+            updateSubmitButtonState();
+        }
+
+        // Función para actualizar el estado del botón "Registrar Votación"
+        function updateSubmitButtonState() {
+            const submitBtn = document.getElementById('submit-votes-btn');
+            if (!submitBtn) return;
+
+            const totalTopics = 6;
+            const votedCount = Object.keys(selectedVotes).length;
+
+            if (votedCount === totalTopics) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+                submitBtn.style.cursor = 'not-allowed';
+            }
+        }
+
+        // Función para guardar votos parciales en Supabase
+        async function savePartialVotes() {
+            const saveBtn = document.getElementById('save-votes-btn');
+            const messageDiv = document.getElementById('vote-message');
+
+            if (Object.keys(selectedVotes).length === 0) {
+                messageDiv.innerHTML = `
+                    <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; border-left: 4px solid #ffc107;">
+                        ⚠️ No has seleccionado ninguna puntuación aún.
+                    </div>
+                `;
+                setTimeout(() => {
+                    messageDiv.innerHTML = '';
+                }, 3000);
+                return;
+            }
+
+            try {
+                saveBtn.disabled = true;
+                saveBtn.textContent = '⏳ Guardando...';
+
+                // Obtener hash del usuario
+                const userHash = await getUserHash();
+                if (!userHash) {
+                    throw new Error('No se pudo obtener identificador de usuario');
+                }
+
+                // Preparar los votos para guardar en Supabase
+                const votesToSave = Object.entries(selectedVotes).map(([topicId, voteData]) => ({
+                    voting_topic_id: topicId,
+                    device_fingerprint: userHash,
+                    selected_options: [voteData.optionIndex],
+                    is_partial: true // Marcar como voto parcial
+                }));
+
+                // Usar upsert para insertar o actualizar
+                const { data, error } = await supabaseClient
+                    .from('votes')
+                    .upsert(votesToSave, {
+                        onConflict: 'voting_topic_id,device_fingerprint',
+                        ignoreDuplicates: false
+                    });
+
+                if (error) {
+                    throw error;
+                }
+
+                saveBtn.textContent = '✓ Guardado';
+                saveBtn.disabled = false;
+                messageDiv.innerHTML = `
+                    <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 10px; border-left: 4px solid #28a745;">
+                        ✓ Votación guardada correctamente. Puedes continuar más tarde.
+                    </div>
+                `;
+
+                setTimeout(() => {
+                    saveBtn.textContent = '💾 Guardar Votación';
+                    messageDiv.innerHTML = '';
+                }, 3000);
+
+                console.log('✅ Votos parciales guardados en Supabase:', votesToSave);
+            } catch (error) {
+                console.error('Error al guardar votos:', error);
+                saveBtn.disabled = false;
+                saveBtn.textContent = '💾 Guardar Votación';
+                messageDiv.innerHTML = `
+                    <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 10px; border-left: 4px solid #dc3545;">
+                        ❌ Error al guardar. Inténtalo de nuevo.
+                    </div>
+                `;
+            }
+        }
+
+        // Función para cargar votos parciales desde Supabase
+        async function loadPartialVotes() {
+            try {
+                // Obtener hash del usuario
+                const userHash = await getUserHash();
+                if (!userHash) {
+                    console.log('No hay usuario identificado, saltando carga de votos');
+                    return;
+                }
+
+                // Cargar votos desde Supabase
+                const { data: votes, error } = await supabaseClient
+                    .from('votes')
+                    .select('voting_topic_id, selected_options')
+                    .eq('device_fingerprint', userHash);
+
+                if (error) {
+                    console.error('Error al cargar votos:', error);
+                    return;
+                }
+
+                if (!votes || votes.length === 0) {
+                    console.log('No hay votos guardados para este usuario');
+                    return;
+                }
+
+                console.log('📥 Cargando votos guardados desde Supabase:', votes);
+
+                // Obtener información de las opciones para cada topic
+                const { data: topics, error: topicsError } = await supabaseClient
+                    .from('voting_topics')
+                    .select('id, options')
+                    .eq('is_active', true);
+
+                if (topicsError) {
+                    console.error('Error al cargar topics:', topicsError);
+                    return;
+                }
+
+                // Crear mapa de topics para acceso rápido
+                const topicsMap = {};
+                topics.forEach(topic => {
+                    topicsMap[topic.id] = topic.options;
+                });
+
+                // Aplicar cada voto guardado
+                votes.forEach(vote => {
+                    const topicId = vote.voting_topic_id;
+                    const optionIndex = vote.selected_options[0];
+                    const topicOptions = topicsMap[topicId];
+
+                    if (!topicOptions) return;
+
+                    const optionText = Array.isArray(topicOptions) ? topicOptions[optionIndex] : JSON.parse(topicOptions)[optionIndex];
+
+                    selectedVotes[topicId] = {
+                        optionIndex: optionIndex,
+                        optionText: optionText
+                    };
+
+                    // Marcar botón como seleccionado visualmente
+                    const container = document.getElementById(`options-${topicId}`);
+                    if (container) {
+                        const buttons = container.querySelectorAll('.ponencia-vote-btn');
+                        buttons.forEach((btn, index) => {
+                            if (index === optionIndex) {
+                                btn.classList.add('selected');
+                            }
+                        });
+
+                        // Actualizar mensaje
+                        const selectionMsg = document.getElementById(`selection-${topicId}`);
+                        if (selectionMsg) {
+                            selectionMsg.textContent = `✓ Seleccionado: ${optionText}`;
+                            selectionMsg.style.color = '#28a745';
+                        }
+                    }
+                });
+
+                // Actualizar disponibilidad de botones
+                updateButtonsAvailability();
+
+                console.log('✅ Votos cargados correctamente desde Supabase');
+            } catch (error) {
+                console.error('Error al cargar votos guardados:', error);
+            }
         }
 
         // Función para enviar todos los votos
@@ -3780,21 +3987,32 @@
             submitBtn.textContent = 'Enviando votos...';
 
             try {
-                // Preparar todos los votos
-                const votesToInsert = [];
+                // Obtener hash del usuario
+                const userHash = await getUserHash();
+                if (!userHash) {
+                    throw new Error('No se pudo obtener identificador de usuario');
+                }
+
+                // Preparar todos los votos para actualizar (marcar como finales)
+                const votesToUpdate = [];
                 for (const [topicId, selection] of Object.entries(selectedVotes)) {
-                    votesToInsert.push({
+                    votesToUpdate.push({
                         voting_topic_id: topicId,
-                        selected_options: [selection.optionIndex]
+                        device_fingerprint: userHash,
+                        selected_options: [selection.optionIndex],
+                        is_partial: false // Marcar como voto final
                     });
                 }
 
-                console.log('📊 Enviando votos:', votesToInsert);
+                console.log('📊 Registrando votación final:', votesToUpdate);
 
-                // Insertar todos los votos
+                // Usar upsert para actualizar o insertar todos los votos
                 const { data, error } = await supabaseClient
                     .from('votes')
-                    .insert(votesToInsert)
+                    .upsert(votesToUpdate, {
+                        onConflict: 'voting_topic_id,device_fingerprint',
+                        ignoreDuplicates: false
+                    })
                     .select();
 
                 if (error) {
