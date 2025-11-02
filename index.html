@@ -3743,7 +3743,7 @@
                 return; // No permitir la selección
             }
 
-            // Guardar selección
+            // Guardar selección en memoria (sin feedback visual)
             selectedVotes[topicId] = {
                 optionIndex: optionIndex,
                 optionText: optionText
@@ -3752,25 +3752,15 @@
             // Resetear flag de registro completo (usuario está modificando votos)
             votesFullyRegistered = false;
 
-            // Quitar selección de otros botones del mismo topic
-            const container = document.getElementById(`options-${topicId}`);
-            const buttons = container.querySelectorAll('.ponencia-vote-btn');
-            buttons.forEach(btn => {
-                btn.classList.remove('selected');
-            });
-
-            // Marcar botón seleccionado
-            buttonElement.classList.add('selected');
-
-            // Actualizar mensaje
-            const selectionMsg = document.getElementById(`selection-${topicId}`);
-            if (selectionMsg) {
-                selectionMsg.textContent = `✓ Seleccionado: ${optionText}`;
-                selectionMsg.style.color = '#28a745';
-            }
-
             // Actualizar disponibilidad de botones en otras ponencias
             updateButtonsAvailability();
+
+            // Mostrar feedback temporal sin marcar como seleccionado
+            const selectionMsg = document.getElementById(`selection-${topicId}`);
+            if (selectionMsg) {
+                selectionMsg.textContent = `⏳ Pendiente de guardar: ${optionText}`;
+                selectionMsg.style.color = '#856404'; // Color amarillo/warning
+            }
         }
 
         // Función para actualizar qué botones están disponibles
@@ -3884,6 +3874,28 @@
                 // Actualizar estado guardado
                 lastSavedVotes = JSON.parse(JSON.stringify(selectedVotes));
 
+                // Marcar visualmente los botones guardados
+                Object.entries(selectedVotes).forEach(([topicId, voteData]) => {
+                    const container = document.getElementById(`options-${topicId}`);
+                    if (container) {
+                        const buttons = container.querySelectorAll('.ponencia-vote-btn');
+                        buttons.forEach((btn, index) => {
+                            if (index === voteData.optionIndex) {
+                                btn.classList.add('selected');
+                            } else {
+                                btn.classList.remove('selected');
+                            }
+                        });
+
+                        // Actualizar mensaje de confirmación
+                        const selectionMsg = document.getElementById(`selection-${topicId}`);
+                        if (selectionMsg) {
+                            selectionMsg.textContent = `✓ Guardado: ${voteData.optionText}`;
+                            selectionMsg.style.color = '#28a745';
+                        }
+                    }
+                });
+
                 console.log('✅ Votos parciales guardados en Supabase:', votesToSave);
             } catch (error) {
                 console.error('Error al guardar votos:', error);
@@ -3985,7 +3997,7 @@
                         // Actualizar mensaje
                         const selectionMsg = document.getElementById(`selection-${topicId}`);
                         if (selectionMsg) {
-                            selectionMsg.textContent = `✓ Seleccionado: ${optionText}`;
+                            selectionMsg.textContent = `✓ Guardado: ${optionText}`;
                             selectionMsg.style.color = '#28a745';
                         }
                     }
@@ -4083,6 +4095,28 @@
                     // Actualizar estado guardado (votación final registrada)
                     lastSavedVotes = JSON.parse(JSON.stringify(selectedVotes));
                     votesFullyRegistered = true; // Marcar como registrado oficialmente
+
+                    // Marcar visualmente los botones registrados
+                    Object.entries(selectedVotes).forEach(([topicId, voteData]) => {
+                        const container = document.getElementById(`options-${topicId}`);
+                        if (container) {
+                            const buttons = container.querySelectorAll('.ponencia-vote-btn');
+                            buttons.forEach((btn, index) => {
+                                if (index === voteData.optionIndex) {
+                                    btn.classList.add('selected');
+                                } else {
+                                    btn.classList.remove('selected');
+                                }
+                            });
+
+                            // Actualizar mensaje de confirmación
+                            const selectionMsg = document.getElementById(`selection-${topicId}`);
+                            if (selectionMsg) {
+                                selectionMsg.textContent = `✓ Registrado: ${voteData.optionText}`;
+                                selectionMsg.style.color = '#28a745';
+                            }
+                        }
+                    });
 
                     // Pequeña pausa para dar feedback visual
                     if (submitBtn) {
