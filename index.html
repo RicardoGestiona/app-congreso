@@ -4122,21 +4122,18 @@
             // Verificar si hay cambios sin guardar (selecciones no guardadas)
             const hasUnsavedChanges = currentVotesCount > 0 && JSON.stringify(selectedVotes) !== JSON.stringify(lastSavedVotes);
 
-            // Verificar si tiene 6 votos guardados pero NO registrados
-            const hasSavedButNotRegistered = currentVotesCount === 6 &&
-                                            lastSavedCount === 6 &&
-                                            JSON.stringify(selectedVotes) === JSON.stringify(lastSavedVotes) &&
-                                            !votesFullyRegistered;
+            // Verificar si tiene 6 votos completos sin registrar (guardados o no)
+            const hasSixVotesNotRegistered = currentVotesCount === 6 && !votesFullyRegistered;
 
-            if (hasSavedButNotRegistered) {
-                // Mostrar advertencia específica: guardó 6 votos pero no los registró
+            if (hasSixVotesNotRegistered) {
+                // Caso: Tiene 6 votos (guardados o no) pero no registrados → Ofrecer registrar directamente
                 showUnsavedModal(
-                    '⚠️ Votación sin registrar',
-                    'Has guardado las 6 puntuaciones pero NO has presionado "Registrar Votación". Los votos guardados NO tienen validez oficial hasta que los registres definitivamente.',
+                    '⚠️ Votación completa sin registrar',
+                    'Has seleccionado las 6 puntuaciones. Puedes registrarlas ahora para que tengan validez oficial, o salir y completar el registro más tarde.',
                     'register' // Botón: "Registrar ahora"
                 );
             } else if (hasUnsavedChanges) {
-                // Mostrar advertencia para cambios sin guardar
+                // Caso: Tiene menos de 6 votos con cambios sin guardar → Ofrecer guardar
                 showUnsavedModal(
                     'Tienes cambios sin guardar',
                     'Has seleccionado puntuaciones pero no las has guardado. Si sales ahora, perderás estos cambios.',
