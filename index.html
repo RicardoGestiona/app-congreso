@@ -3755,26 +3755,33 @@
                 }
             }
 
-            // Verificar si esta puntuación ya está usada en otra ponencia
-            const isUsed = Object.entries(selectedVotes).some(([id, selection]) => {
+            // Verificar si esta puntuación ya está usada en otra ponencia y liberarla automáticamente
+            const previousTopic = Object.entries(selectedVotes).find(([id, selection]) => {
                 return id !== topicId && selection.optionIndex === optionIndex;
             });
 
-            if (isUsed) {
-                // Mostrar mensaje de error
-                const selectionMsg = document.getElementById(`selection-${topicId}`);
-                if (selectionMsg) {
-                    selectionMsg.textContent = `⚠️ Esta puntuación ya está asignada a otra ponencia`;
-                    selectionMsg.style.color = '#dc3545';
+            if (previousTopic) {
+                const [previousTopicId] = previousTopic;
+
+                // Liberar la puntuación de la ponencia anterior
+                delete selectedVotes[previousTopicId];
+
+                // Limpiar mensaje visual de la ponencia anterior
+                const previousMsg = document.getElementById(`selection-${previousTopicId}`);
+                if (previousMsg) {
+                    previousMsg.textContent = '';
                 }
 
-                // Efecto visual de error
-                buttonElement.style.animation = 'shake 0.5s';
-                setTimeout(() => {
-                    buttonElement.style.animation = '';
-                }, 500);
+                // Si la ponencia anterior tenía voto guardado en BD, limpiar visual también
+                const previousContainer = document.getElementById(`options-${previousTopicId}`);
+                if (previousContainer) {
+                    const previousButtons = previousContainer.querySelectorAll('.ponencia-vote-btn');
+                    previousButtons.forEach(btn => {
+                        btn.classList.remove('selected');
+                    });
+                }
 
-                return; // No permitir la selección
+                console.log(`✓ Puntuación ${optionText} liberada de ${previousTopicId} y movida a ${topicId}`);
             }
 
             // Guardar selección en memoria (sin feedback visual)
