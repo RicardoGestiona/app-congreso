@@ -3205,7 +3205,7 @@
                     <div style="font-size: 32px; color: #2196F3; flex-shrink: 0;">ℹ️</div>
                     <div>
                         <p style="margin: 0; color: #1565C0; font-size: 16px; font-weight: 600; line-height: 1.6;">
-                            <strong>Instrucciones:</strong> Selecciona tu puntuación para cada ponencia. Asigna <strong>6, 5, 4, 3, 2 o 1 punto</strong> a cada una (sin repetir).
+                            Selecciona tu puntuación para cada ponencia. Asigna <strong>6, 5, 4, 3, 2 o 1 punto</strong> a cada una (sin repetir).
                         </p>
                     </div>
                 </div>
@@ -3658,7 +3658,7 @@
 
             // Añadir botón de registro al final
             const submitButton = document.createElement('div');
-            submitButton.style.textAlign = 'center';
+            submitButton.style.cssText = 'text-align: center; grid-column: 1 / -1; width: 100%;';
             submitButton.innerHTML = `
                 <button id="submit-votes-btn" class="btn" onclick="submitAllVotes()" style="margin-top: 30px; font-size: 18px; padding: 20px;">
                     📊 Registrar Votación
