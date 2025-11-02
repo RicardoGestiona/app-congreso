@@ -3217,19 +3217,19 @@
             <h2 style="color: white; text-align: center; font-size: 32px; margin: 30px 20px 20px 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">🗳️ Votación de Ponencias</h2>
 
             <!-- Modal de confirmación para votos no guardados -->
-            <div id="unsaved-votes-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
-                <div style="background: white; border-radius: 20px; padding: 40px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.5); text-align: center;">
-                    <div style="font-size: 60px; margin-bottom: 20px;">⚠️</div>
-                    <h3 style="color: #1a1a1a; font-size: 24px; margin-bottom: 15px;" id="unsaved-modal-title">Tienes cambios sin guardar</h3>
-                    <p style="color: #666; font-size: 16px; margin-bottom: 30px; line-height: 1.6;" id="unsaved-modal-message">
+            <div id="unsaved-votes-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 122, 143, 0.95); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+                <div style="background: white; border-radius: 20px; padding: 40px; max-width: 500px; width: 90%; box-shadow: 0 25px 80px rgba(0, 217, 192, 0.4); text-align: center; border: 3px solid #00D9C0;">
+                    <div style="width: 80px; height: 80px; margin: 0 auto 25px; background: linear-gradient(135deg, rgba(0, 217, 192, 0.15), rgba(0, 245, 224, 0.2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 50px; border: 3px solid #00D9C0;">⚠️</div>
+                    <h3 style="color: #006B7D; font-size: 24px; margin-bottom: 15px; font-weight: 700;" id="unsaved-modal-title">Tienes cambios sin guardar</h3>
+                    <p style="color: #0B7A8F; font-size: 16px; margin-bottom: 35px; line-height: 1.6; font-weight: 500;" id="unsaved-modal-message">
                         Has seleccionado puntuaciones pero no las has guardado. ¿Quieres salir sin guardar?
                     </p>
-                    <div style="display: flex; gap: 15px; justify-content: center;">
-                        <button onclick="closeUnsavedModal()" style="padding: 15px 30px; border: 2px solid #0B7A8F; background: white; color: #0B7A8F; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer;">
-                            Cancelar
+                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="closeUnsavedModal()" style="padding: 16px 32px; border: 3px solid #00D9C0; background: white; color: #006B7D; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0, 217, 192, 0.2);" onmouseover="this.style.background='#00D9C0'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='#006B7D';">
+                            ← Volver
                         </button>
-                        <button onclick="confirmLeaveWithoutSaving()" style="padding: 15px 30px; border: none; background: linear-gradient(135deg, #dc3545, #c82333); color: white; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer;">
-                            Salir sin guardar
+                        <button onclick="confirmLeaveWithoutSaving()" style="padding: 16px 32px; border: none; background: linear-gradient(135deg, #0B7A8F, #006B7D); color: white; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(11, 122, 143, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(11, 122, 143, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(11, 122, 143, 0.3)';">
+                            Salir de todos modos →
                         </button>
                     </div>
                 </div>
@@ -3629,6 +3629,9 @@
         // Object para trackear el último estado guardado
         let lastSavedVotes = {};
 
+        // Variable para trackear si la votación fue registrada (no parcial)
+        let votesFullyRegistered = false;
+
         // Actualizar display de votaciones
         function updateVotingTopics(topics) {
             console.log('Votaciones desde Supabase:', topics);
@@ -3745,6 +3748,9 @@
                 optionIndex: optionIndex,
                 optionText: optionText
             };
+
+            // Resetear flag de registro completo (usuario está modificando votos)
+            votesFullyRegistered = false;
 
             // Quitar selección de otros botones del mismo topic
             const container = document.getElementById(`options-${topicId}`);
@@ -4072,6 +4078,7 @@
 
                     // Actualizar estado guardado (votación final registrada)
                     lastSavedVotes = JSON.parse(JSON.stringify(selectedVotes));
+                    votesFullyRegistered = true; // Marcar como registrado oficialmente
 
                     // Pequeña pausa para dar feedback visual
                     submitBtn.textContent = '✓ ¡Enviado!';
@@ -4100,17 +4107,20 @@
             const currentVotesCount = Object.keys(selectedVotes).length;
             const lastSavedCount = Object.keys(lastSavedVotes).length;
 
-            // Verificar si hay cambios sin guardar
+            // Verificar si hay cambios sin guardar (selecciones no guardadas)
             const hasUnsavedChanges = currentVotesCount > 0 && JSON.stringify(selectedVotes) !== JSON.stringify(lastSavedVotes);
 
-            // Verificar si tiene 6 votos completos sin registrar
-            const hasCompleteVotesUnregistered = currentVotesCount === 6 && !hasVotesRegistered();
+            // Verificar si tiene 6 votos guardados pero NO registrados
+            const hasSavedButNotRegistered = currentVotesCount === 6 &&
+                                            lastSavedCount === 6 &&
+                                            JSON.stringify(selectedVotes) === JSON.stringify(lastSavedVotes) &&
+                                            !votesFullyRegistered;
 
-            if (hasCompleteVotesUnregistered) {
-                // Mostrar advertencia específica para 6 votos completos
+            if (hasSavedButNotRegistered) {
+                // Mostrar advertencia específica: guardó 6 votos pero no los registró
                 showUnsavedModal(
-                    '¡Votación completa sin registrar!',
-                    'Has seleccionado las 6 puntuaciones pero aún no has presionado "Registrar Votación". Si sales ahora, tu votación final no se enviará. ¿Estás seguro?'
+                    '⚠️ Votación sin registrar',
+                    'Has guardado las 6 puntuaciones pero NO has presionado "Registrar Votación". Los votos guardados NO tienen validez oficial hasta que los registres. ¿Quieres salir sin registrar?'
                 );
             } else if (hasUnsavedChanges) {
                 // Mostrar advertencia para cambios sin guardar
@@ -4122,18 +4132,6 @@
                 // No hay cambios, permitir salir directamente
                 showScreen('home-screen');
             }
-        }
-
-        // Función auxiliar para verificar si la votación está registrada (no parcial)
-        function hasVotesRegistered() {
-            // Si todos los votos guardados son exactamente iguales a los actuales
-            // y tenemos 6 votos, asumimos que están registrados
-            const currentVotesCount = Object.keys(selectedVotes).length;
-            const lastSavedCount = Object.keys(lastSavedVotes).length;
-
-            return currentVotesCount === 6 &&
-                   lastSavedCount === 6 &&
-                   JSON.stringify(selectedVotes) === JSON.stringify(lastSavedVotes);
         }
 
         // Función para mostrar el modal con mensaje personalizado
