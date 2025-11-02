@@ -3051,7 +3051,7 @@
             <div class="section">
                 <h2>🗳️ Votación de Ponencias</h2>
                 <p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 16px;">
-                    Selecciona tu puntuación para cada ponencia. Asigna: 5, 3, 2 o 1 punto.
+                    Selecciona tu puntuación para cada ponencia. Asigna: 6, 5, 4, 3, 2 o 1 punto.
                 </p>
 
                 <div id="vote-status">
@@ -3472,7 +3472,6 @@
                 ponenciaCard.className = 'ponencia-card';
                 ponenciaCard.innerHTML = `
                     <div class="ponencia-title">${topic.title || 'Ponencia sin título'}</div>
-                    <div class="ponencia-subtitle">${topic.description || ''}</div>
                     <div class="ponencia-author">${topic.author || 'Autor no especificado'}</div>
                     <div class="ponencia-organization">${topic.organization || 'Organización no especificada'}</div>
 
@@ -3588,7 +3587,7 @@
             const submitBtn = document.getElementById('submit-votes-btn');
 
             // Verificar que se hayan seleccionado todas las ponencias
-            const totalTopics = 4; // Tenemos 4 ponencias
+            const totalTopics = 6; // Tenemos 6 ponencias
             if (Object.keys(selectedVotes).length < totalTopics) {
                 messageDiv.innerHTML = `
                     <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; border-left: 4px solid #ffc107;">
