@@ -3225,7 +3225,7 @@
                         Has seleccionado puntuaciones pero no las has guardado. ¿Quieres salir sin guardar?
                     </p>
                     <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                        <button onclick="registerAndLeave()" style="padding: 16px 32px; border: none; background: linear-gradient(135deg, #00D9C0, #00F5E0); color: white; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0, 217, 192, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 217, 192, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0, 217, 192, 0.3)';">
+                        <button id="modal-primary-action" style="padding: 16px 32px; border: none; background: linear-gradient(135deg, #00D9C0, #00F5E0); color: white; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0, 217, 192, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 217, 192, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0, 217, 192, 0.3)';">
                             📊 Registrar ahora
                         </button>
                         <button onclick="confirmLeaveWithoutSaving()" style="padding: 16px 32px; border: 3px solid #00D9C0; background: white; color: #006B7D; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0, 217, 192, 0.2);" onmouseover="this.style.background='#f8d7da'; this.style.color='#721c24'; this.style.borderColor='#dc3545';" onmouseout="this.style.background='white'; this.style.color='#006B7D'; this.style.borderColor='#00D9C0';">
@@ -4132,13 +4132,15 @@
                 // Mostrar advertencia específica: guardó 6 votos pero no los registró
                 showUnsavedModal(
                     '⚠️ Votación sin registrar',
-                    'Has guardado las 6 puntuaciones pero NO has presionado "Registrar Votación". Los votos guardados NO tienen validez oficial hasta que los registres. ¿Quieres salir sin registrar?'
+                    'Has guardado las 6 puntuaciones pero NO has presionado "Registrar Votación". Los votos guardados NO tienen validez oficial hasta que los registres definitivamente.',
+                    'register' // Botón: "Registrar ahora"
                 );
             } else if (hasUnsavedChanges) {
                 // Mostrar advertencia para cambios sin guardar
                 showUnsavedModal(
                     'Tienes cambios sin guardar',
-                    'Has seleccionado puntuaciones pero no las has guardado. Si sales ahora, perderás estos cambios. ¿Quieres salir sin guardar?'
+                    'Has seleccionado puntuaciones pero no las has guardado. Si sales ahora, perderás estos cambios.',
+                    'save' // Botón: "Guardar ahora"
                 );
             } else {
                 // No hay cambios, permitir salir directamente
@@ -4147,13 +4149,26 @@
         }
 
         // Función para mostrar el modal con mensaje personalizado
-        function showUnsavedModal(title, message) {
+        function showUnsavedModal(title, message, actionType = 'register') {
             const modal = document.getElementById('unsaved-votes-modal');
             const modalTitle = document.getElementById('unsaved-modal-title');
             const modalMessage = document.getElementById('unsaved-modal-message');
+            const primaryButton = document.getElementById('modal-primary-action');
 
             modalTitle.textContent = title;
             modalMessage.textContent = message;
+
+            // Configurar el botón según el tipo de acción
+            if (actionType === 'save') {
+                // Caso: Hay cambios sin guardar -> Botón "Guardar ahora"
+                primaryButton.innerHTML = '💾 Guardar ahora';
+                primaryButton.onclick = saveAndLeave;
+            } else {
+                // Caso: 6 votos guardados sin registrar -> Botón "Registrar ahora"
+                primaryButton.innerHTML = '📊 Registrar ahora';
+                primaryButton.onclick = registerAndLeave;
+            }
+
             modal.style.display = 'flex';
         }
 
@@ -4167,6 +4182,17 @@
         function confirmLeaveWithoutSaving() {
             closeUnsavedModal();
             showScreen('home-screen');
+        }
+
+        // Función para guardar votos parciales y salir
+        async function saveAndLeave() {
+            closeUnsavedModal();
+            // Guardar votos parciales
+            await savePartialVotes();
+            // Pequeña pausa para que se complete el guardado
+            setTimeout(() => {
+                showScreen('home-screen');
+            }, 500);
         }
 
         // Función para registrar votos y salir
