@@ -3721,6 +3721,40 @@
         function selectOption(topicId, optionIndex, optionText, buttonElement) {
             console.log(`✓ Intentando seleccionar: ${optionText} para ${topicId}`);
 
+            // Verificar si se está clickeando la misma opción que ya está en memoria
+            const currentSelection = selectedVotes[topicId];
+            const savedSelection = lastSavedVotes[topicId];
+
+            if (currentSelection && currentSelection.optionIndex === optionIndex) {
+                // Verificar si este voto está guardado en BD
+                const isSavedInDB = savedSelection && savedSelection.optionIndex === optionIndex;
+
+                if (isSavedInDB) {
+                    // No permitir deseleccionar votos guardados en BD
+                    const selectionMsg = document.getElementById(`selection-${topicId}`);
+                    if (selectionMsg) {
+                        selectionMsg.textContent = `ℹ️ Para cambiar un voto guardado, selecciona otra puntuación`;
+                        selectionMsg.style.color = '#0B7A8F';
+                    }
+                    return;
+                } else {
+                    // Deseleccionar: quitar de memoria (solo si NO está guardado en BD)
+                    delete selectedVotes[topicId];
+
+                    // Limpiar mensaje
+                    const selectionMsg = document.getElementById(`selection-${topicId}`);
+                    if (selectionMsg) {
+                        selectionMsg.textContent = '';
+                    }
+
+                    // Actualizar disponibilidad de botones
+                    updateButtonsAvailability();
+
+                    console.log(`✓ Deseleccionado: ${optionText} de ${topicId}`);
+                    return;
+                }
+            }
+
             // Verificar si esta puntuación ya está usada en otra ponencia
             const isUsed = Object.entries(selectedVotes).some(([id, selection]) => {
                 return id !== topicId && selection.optionIndex === optionIndex;
