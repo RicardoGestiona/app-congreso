@@ -789,8 +789,7 @@
             transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            justify-content: flex-end;
-            padding-right: 15px;
+            justify-content: center;
             color: white;
             font-weight: bold;
             font-size: 16px;
@@ -4814,9 +4813,8 @@
 
                                 <div class="result-bar-container">
                                     <div class="result-bar" style="width: ${percentage}%;">
-                                        ${percentage > 15 ? `${percentage.toFixed(1)}%` : ''}
+                                        ${percentage.toFixed(1)}%
                                     </div>
-                                    ${percentage <= 15 ? `<div style="position: absolute; left: calc(${percentage}% + 10px); top: 50%; transform: translateY(-50%); color: #667eea; font-weight: bold; font-size: 14px;">${percentage.toFixed(1)}%</div>` : ''}
                                 </div>
 
                                 <div class="result-details">
