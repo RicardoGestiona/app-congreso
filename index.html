@@ -4720,29 +4720,25 @@
             }
 
             try {
-                // IDs de las 4 ponencias
-                const presentationIds = [
-                    '44444444-4444-4444-4444-444444444444',
-                    '55555555-5555-5555-5555-555555555555',
-                    '66666666-6666-6666-6666-666666666666',
-                    '77777777-7777-7777-7777-777777777777'
-                ];
-
-                // Obtener información de las ponencias
+                // Obtener información de TODAS las ponencias activas
                 const { data: topics, error: topicsError } = await supabaseClient
                     .from('voting_topics')
                     .select('*')
-                    .in('id', presentationIds);
+                    .eq('is_active', true);
 
                 if (topicsError) {
                     throw topicsError;
                 }
 
-                // Obtener todos los votos
+                // Obtener IDs de las ponencias activas
+                const presentationIds = topics.map(t => t.id);
+
+                // Obtener todos los votos de las ponencias activas
                 const { data: allVotes, error: votesError } = await supabaseClient
                     .from('votes')
                     .select('*')
-                    .in('voting_topic_id', presentationIds);
+                    .in('voting_topic_id', presentationIds)
+                    .eq('is_partial', false);
 
                 if (votesError) {
                     throw votesError;
@@ -4758,14 +4754,14 @@
 
                     // Calcular puntuación total
                     let totalScore = 0;
-                    const scoreDistribution = { 5: 0, 3: 0, 2: 0, 1: 0 };
+                    const scoreDistribution = { 6: 0, 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
 
                     topicVotes.forEach(vote => {
                         // selected_options es un array, tomamos el primer elemento
                         const optionIndex = vote.selected_options[0];
 
-                        // Mapear índice a puntos: [0] = 5 puntos, [1] = 3 puntos, [2] = 2 puntos, [3] = 1 punto
-                        const pointsMap = [5, 3, 2, 1];
+                        // Mapear índice a puntos: [0] = 6 puntos, [1] = 5 puntos, [2] = 4 puntos, [3] = 3 puntos, [4] = 2 puntos, [5] = 1 punto
+                        const pointsMap = [6, 5, 4, 3, 2, 1];
                         const points = pointsMap[optionIndex];
 
                         totalScore += points;
@@ -4833,8 +4829,16 @@
                                         <div class="result-stat-value">${result.voteCount}</div>
                                     </div>
                                     <div class="result-stat">
+                                        <div class="result-stat-label">6 puntos</div>
+                                        <div class="result-stat-value">${result.distribution[6]}</div>
+                                    </div>
+                                    <div class="result-stat">
                                         <div class="result-stat-label">5 puntos</div>
                                         <div class="result-stat-value">${result.distribution[5]}</div>
+                                    </div>
+                                    <div class="result-stat">
+                                        <div class="result-stat-label">4 puntos</div>
+                                        <div class="result-stat-value">${result.distribution[4]}</div>
                                     </div>
                                     <div class="result-stat">
                                         <div class="result-stat-label">3 puntos</div>
