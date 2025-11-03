@@ -3421,7 +3421,7 @@
                 </div>
 
                 <div class="vote-counter" id="vote-counter">
-                    Votos restantes: <span class="votes-remaining" id="votes-remaining">3</span>
+                    Votos restantes: <span class="votes-remaining" id="votes-remaining">4</span>
                 </div>
 
                 <div class="posters-grid" id="posters-grid">
@@ -5363,9 +5363,9 @@
         // Estado de votación de posters
         let posterVotingState = {
             selectedPosters: new Set(),
-            maxVotes: 3,
+            maxVotes: 4,
             votesUsed: 0, // Votos ya emitidos anteriormente
-            votesAvailable: 3, // Votos disponibles para esta sesión
+            votesAvailable: 4, // Votos disponibles para esta sesión
             allPosters: [],
             previousVotes: [] // IDs de posters votados anteriormente
         };
@@ -5436,15 +5436,15 @@
                 posterVotingState.votesAvailable = posterVotingState.maxVotes - votesCount;
                 posterVotingState.previousVotes = votes ? votes.map(v => v.poster_id) : [];
 
-                console.log(`📊 Usuario ha usado ${votesCount}/3 votos`);
+                console.log(`📊 Usuario ha usado ${votesCount}/4 votos`);
 
                 const statusDiv = document.getElementById('poster-vote-status');
 
                 if (votesCount >= posterVotingState.maxVotes) {
-                    // Ya usó sus 3 votos - NO puede votar más
+                    // Ya usó sus 4 votos - NO puede votar más
                     statusDiv.innerHTML = `
                         <div class="poster-confirmation-message">
-                            <h3>✅ Ya has usado tus 3 votos</h3>
+                            <h3>✅ Ya has usado tus 4 votos</h3>
                             <p>Has votado por ${votesCount} posters. ¡Gracias por tu participación!</p>
                             <button class="btn" onclick="showMyPosterVotes()" style="margin-top: 15px; max-width: 300px;">
                                 👁️ Ver mis votos
@@ -5602,7 +5602,7 @@
             counterDiv.innerHTML = `
                 Votos disponibles: <span class="votes-remaining">${remaining}</span> de ${posterVotingState.votesAvailable}
                 <br>
-                <small style="font-size: 12px; opacity: 0.8;">Total usado: ${totalUsed}/3</small>
+                <small style="font-size: 12px; opacity: 0.8;">Total usado: ${totalUsed}/4</small>
             `;
 
             if (remaining === 0) {
