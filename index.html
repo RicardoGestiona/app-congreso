@@ -2336,8 +2336,9 @@
         }
 
         .winner-trophy {
-            font-size: 120px;
-            margin-bottom: 30px;
+            font-size: 100px;
+            margin-bottom: 25px;
+            text-align: center;
         }
 
         .winner-card {
@@ -2350,20 +2351,7 @@
             box-shadow: 0 10px 40px rgba(0, 217, 192, 0.3);
             position: relative;
             overflow: hidden;
-        }
-
-        .winner-badge-large {
-            display: inline-block;
-            background: linear-gradient(135deg, #00D9C0 0%, #00F5E0 100%);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-size: 18px;
-            font-weight: 800;
-            margin-bottom: 25px;
-            box-shadow: 0 6px 20px rgba(0, 217, 192, 0.5);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            text-align: center;
         }
 
         .winner-title {
@@ -3623,10 +3611,6 @@
                 ← Volver al inicio
             </button>
 
-            <div class="header">
-                <h1>Poster ganador</h1>
-            </div>
-
             <div class="section">
                 <div id="poster-winner-container">
                     <!-- El ganador se cargará aquí -->
@@ -3639,10 +3623,6 @@
             <button class="back-btn" onclick="showScreen('home-screen')">
                 ← Volver al inicio
             </button>
-
-            <div class="header">
-                <h1>Ponencia ganadora</h1>
-            </div>
 
             <div class="section">
                 <div id="talk-winner-container">
@@ -6154,10 +6134,8 @@
 
             container.innerHTML = `
                 <div class="winner-container">
-                    <div class="winner-trophy">🏆</div>
-
                     <div class="winner-card">
-                        <div class="winner-badge-large">¡Ganador!</div>
+                        <div class="winner-trophy">🏆</div>
 
                         <h2 class="winner-title">${escapeHtml(winner.title)}</h2>
 
@@ -6289,10 +6267,8 @@
 
             container.innerHTML = `
                 <div class="winner-container">
-                    <div class="winner-trophy">🏆</div>
-
                     <div class="winner-card">
-                        <div class="winner-badge-large">¡Ganador!</div>
+                        <div class="winner-trophy">🏆</div>
 
                         <h2 class="winner-title">${escapeHtml(winner.title)}</h2>
 
