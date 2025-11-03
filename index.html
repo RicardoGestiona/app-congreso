@@ -5802,7 +5802,7 @@
 
                 const { data: results, error } = await supabaseClient
                     .from('public_poster_results')
-                    .select('*')
+                    .select('id, title, author_name, author_organization, thumbnail_url, total_votes')
                     .order('total_votes', { ascending: false });
 
                 if (error) {
@@ -5820,12 +5820,15 @@
                 if (!autoRefresh) {
                     console.log('✅ Resultados de posters:', results);
                 }
-                renderPosterResults(results);
 
-                // Actualizar timestamp
-                const now = new Date();
-                document.getElementById('poster-results-timestamp').textContent =
-                    `Última actualización: ${now.toLocaleTimeString('es-ES')}`;
+                const hasChanges = renderPosterResults(results);
+
+                // Solo actualizar timestamp si hubo cambios o es primera carga
+                if (hasChanges || !autoRefresh) {
+                    const now = new Date();
+                    document.getElementById('poster-results-timestamp').textContent =
+                        `Última actualización: ${now.toLocaleTimeString('es-ES')}`;
+                }
 
             } catch (error) {
                 console.error('Error:', error);
@@ -5845,13 +5848,21 @@
                         <p style="font-size: 18px;">Aún no hay votos registrados.</p>
                     </div>
                 `;
-                return;
+                previousPosterResults = null;
+                return true; // Hubo cambios
             }
 
             // Comparar con resultados anteriores para evitar re-renderizado innecesario
-            const currentHash = JSON.stringify(results.map(r => ({ id: r.id, votes: r.total_votes })));
+            // Incluimos solo los campos que afectan visualmente el resultado
+            const currentHash = JSON.stringify(results.map(r => ({
+                id: r.id,
+                votes: r.total_votes,
+                title: r.title,
+                author: r.author_name
+            })));
+
             if (previousPosterResults === currentHash) {
-                return; // No hay cambios, no actualizar
+                return false; // No hay cambios, no actualizar
             }
             previousPosterResults = currentHash;
 
@@ -5889,6 +5900,8 @@
                     </div>
                 `;
             }).join('');
+
+            return true; // Hubo cambios, se actualizó el DOM
         }
 
         // Función auxiliar para escapar HTML
