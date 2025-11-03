@@ -3433,11 +3433,9 @@
         <!-- Pantalla de Confirmación de Voto de Poster -->
         <div id="poster-vote-confirmation-screen" class="screen">
             <div class="section" style="text-align: center; padding: 50px 25px;">
-                <div style="font-size: 80px; margin-bottom: 20px;">✅</div>
-                <h2 style="font-size: 28px; color: #28a745; margin-bottom: 15px;">¡Votos Registrados!</h2>
+                <div style="font-size: 80px; margin-bottom: 20px;">👍</div>
                 <p style="font-size: 18px; color: #666; margin-bottom: 30px;">
-                    Tus votos han sido registrados exitosamente.<br>
-                    Gracias por tu participación en la votación de posters.
+                    Votación registrada. Gracias por tu participación
                 </p>
                 <div id="poster-votes-summary" style="margin-bottom: 30px;">
                     <!-- Se mostrará el resumen de votos aquí -->
@@ -5733,10 +5731,12 @@
 
             const canVoteMore = posterVotingState.votesAvailable > 0;
             const votesUsedTotal = posterVotingState.votesUsed;
+            const votesCount = selectedPosterData.length;
+            const votosLabel = votesCount === 1 ? 'voto registrado' : 'votos registrados';
 
             const summaryHtml = `
                 <div style="text-align: left; max-width: 400px; margin: 0 auto;">
-                    <h3 style="margin-bottom: 15px; color: var(--color-secondary-dark);">Votos registrados en esta sesión:</h3>
+                    <h3 style="margin-bottom: 15px; color: var(--color-secondary-dark);">${votesCount} ${votosLabel}:</h3>
                     ${selectedPosterData.map(poster => `
                         <div style="background: rgba(0, 217, 192, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--color-primary);">
                             <strong>${escapeHtml(poster.title)}</strong><br>
@@ -5746,15 +5746,11 @@
 
                     <div style="background: rgba(102, 126, 234, 0.1); padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center;">
                         <strong style="color: var(--color-secondary-dark);">Total de votos usados: ${votesUsedTotal}/4</strong>
-                        ${canVoteMore ? `
-                            <p style="color: #666; font-size: 14px; margin-top: 8px;">
-                                💎 ¡Todavía puedes votar por ${posterVotingState.votesAvailable} poster(es) más!
-                            </p>
-                        ` : `
+                        ${!canVoteMore ? `
                             <p style="color: #666; font-size: 14px; margin-top: 8px;">
                                 ✅ Has usado todos tus votos. ¡Gracias por participar!
                             </p>
-                        `}
+                        ` : ''}
                     </div>
                 </div>
             `;
