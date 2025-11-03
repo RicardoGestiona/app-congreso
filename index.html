@@ -5784,9 +5784,11 @@
         });
 
         // Cargar resultados de posters
-        async function loadPosterResults() {
+        async function loadPosterResults(autoRefresh = false) {
             try {
-                console.log('📊 Cargando resultados de posters...');
+                if (!autoRefresh) {
+                    console.log('📊 Cargando resultados de posters...');
+                }
 
                 const { data: results, error } = await supabaseClient
                     .from('public_poster_results')
@@ -5795,15 +5797,19 @@
 
                 if (error) {
                     console.error('Error al cargar resultados:', error);
-                    document.getElementById('poster-results-container').innerHTML = `
-                        <div style="text-align: center; padding: 40px; color: #999;">
-                            <p>Error al cargar los resultados. Intenta nuevamente.</p>
-                        </div>
-                    `;
+                    if (!autoRefresh) {
+                        document.getElementById('poster-results-container').innerHTML = `
+                            <div style="text-align: center; padding: 40px; color: #999;">
+                                <p>Error al cargar los resultados. Intenta nuevamente.</p>
+                            </div>
+                        `;
+                    }
                     return;
                 }
 
-                console.log('✅ Resultados de posters:', results);
+                if (!autoRefresh) {
+                    console.log('✅ Resultados de posters:', results);
+                }
                 renderPosterResults(results);
 
                 // Actualizar timestamp
@@ -5815,6 +5821,9 @@
                 console.error('Error:', error);
             }
         }
+
+        // Variable para guardar el estado anterior de los resultados
+        let previousPosterResults = null;
 
         // Renderizar resultados de posters
         function renderPosterResults(results) {
@@ -5828,6 +5837,13 @@
                 `;
                 return;
             }
+
+            // Comparar con resultados anteriores para evitar re-renderizado innecesario
+            const currentHash = JSON.stringify(results.map(r => ({ id: r.id, votes: r.total_votes })));
+            if (previousPosterResults === currentHash) {
+                return; // No hay cambios, no actualizar
+            }
+            previousPosterResults = currentHash;
 
             const maxVotes = Math.max(...results.map(r => r.total_votes), 1);
 
@@ -5901,7 +5917,7 @@
 
                 // Auto-refresh cada 2 minutos
                 setInterval(() => {
-                    loadPosterResults();
+                    loadPosterResults(true);
                 }, 120000);
             }
         })();
