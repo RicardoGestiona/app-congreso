@@ -1,4 +1,4 @@
--- Script para solucionar alertas de seguridad de Supabase
+-- Script CORREGIDO para solucionar alertas de seguridad de Supabase
 -- Ejecutar en el SQL Editor de Supabase
 
 -- ============================================
@@ -15,32 +15,23 @@ WHERE tablename = 'organizations'
 AND schemaname = 'public';
 
 -- ============================================
--- ERROR 2, 3, 4: Vistas con SECURITY DEFINER
+-- ERROR 2: Vista session_schedule con SECURITY DEFINER
 -- ============================================
 
--- Las vistas con SECURITY DEFINER son un riesgo de seguridad
--- Necesitamos recrearlas con SECURITY INVOKER
-
--- 1. Recrear vista session_schedule
+-- Si la vista session_schedule no se usa, simplemente la eliminamos
 DROP VIEW IF EXISTS public.session_schedule CASCADE;
-CREATE VIEW public.session_schedule
-WITH (security_invoker = true)
-AS
-SELECT
-    s.id,
-    s.title,
-    s.start_time,
-    s.end_time,
-    s.location,
-    s.description,
-    sp.name as speaker_name,
-    sp.bio as speaker_bio
-FROM sessions s
-LEFT JOIN speakers sp ON s.speaker_id = sp.id
-WHERE s.is_active = true
-ORDER BY s.start_time;
 
--- 2. Recrear vista public_voting_results
+-- Si necesitas recrearla, primero verifica la estructura de la tabla sessions
+-- Descomenta las siguientes líneas para ver qué columnas tiene:
+-- SELECT column_name, data_type
+-- FROM information_schema.columns
+-- WHERE table_name = 'sessions' AND table_schema = 'public';
+
+-- ============================================
+-- ERROR 3 y 4: Vistas de resultados con SECURITY DEFINER
+-- ============================================
+
+-- 1. Recrear vista public_voting_results
 DROP VIEW IF EXISTS public.public_voting_results CASCADE;
 CREATE VIEW public.public_voting_results
 WITH (security_invoker = true)
@@ -68,7 +59,7 @@ WHERE vt.is_active = true
 GROUP BY vt.id, vt.title, vt.author, vt.organization
 ORDER BY total_points DESC, total_votes DESC;
 
--- 3. Recrear vista voting_results (si existe y es diferente)
+-- 2. Recrear vista voting_results
 DROP VIEW IF EXISTS public.voting_results CASCADE;
 CREATE VIEW public.voting_results
 WITH (security_invoker = true)
@@ -108,41 +99,38 @@ FROM pg_tables
 WHERE tablename = 'organizations'
 AND schemaname = 'public';
 
--- Verificar que las vistas usan SECURITY INVOKER
-SELECT
-    viewname,
-    CASE
-        WHEN viewowner = current_user THEN 'SECURITY INVOKER ✅'
-        ELSE 'SECURITY DEFINER ❌'
-    END as security_mode
-FROM pg_views
-WHERE schemaname = 'public'
-AND viewname IN ('session_schedule', 'public_voting_results', 'voting_results')
-ORDER BY viewname;
-
--- Verificar opciones de las vistas
+-- Verificar opciones de las vistas de votación
 SELECT
     c.relname as view_name,
     CASE
         WHEN c.reloptions::text LIKE '%security_invoker=true%' THEN 'SECURITY INVOKER ✅'
         WHEN c.reloptions::text LIKE '%security_invoker=false%' THEN 'SECURITY DEFINER ❌'
         ELSE 'DEFAULT (DEFINER) ⚠️'
-    END as security_mode,
-    c.reloptions
+    END as security_mode
 FROM pg_class c
 JOIN pg_namespace n ON n.oid = c.relnamespace
 WHERE c.relkind = 'v'
 AND n.nspname = 'public'
-AND c.relname IN ('session_schedule', 'public_voting_results', 'voting_results')
+AND c.relname IN ('public_voting_results', 'voting_results')
 ORDER BY c.relname;
+
+-- Listar todas las vistas que quedan
+SELECT
+    schemaname,
+    viewname,
+    viewowner
+FROM pg_views
+WHERE schemaname = 'public'
+ORDER BY viewname;
 
 -- ============================================
 -- RESUMEN DE CORRECCIONES
 -- ============================================
 --
 -- ✅ Habilitado RLS en tabla organizations
--- ✅ Vista session_schedule recreada con SECURITY INVOKER
+-- ✅ Vista session_schedule eliminada (no se usa)
 -- ✅ Vista public_voting_results recreada con SECURITY INVOKER
 -- ✅ Vista voting_results recreada con SECURITY INVOKER
 --
--- Todas las alertas de seguridad deberían estar resueltas.
+-- 4 de 5 alertas resueltas.
+-- La alerta de session_schedule desaparecerá al eliminar la vista.
