@@ -5329,7 +5329,8 @@
                 localStorage.removeItem('userName');
                 localStorage.removeItem('userEmail');
                 localStorage.removeItem('attendeeCode');
-                location.reload();
+                // Redirigir a la página principal sin hash ni query params
+                window.location.href = window.location.origin + window.location.pathname;
             }
         }
 
