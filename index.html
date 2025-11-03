@@ -5342,6 +5342,21 @@
             window.location.href = window.location.origin + window.location.pathname;
         }
 
+        // Mostrar modal informativo (reemplazo de alert)
+        function showInfoModal(message, title = 'Información', icon = 'ℹ️') {
+            const modal = document.getElementById('info-modal');
+            document.getElementById('info-modal-title').textContent = title;
+            document.getElementById('info-modal-message').textContent = message;
+            document.getElementById('info-modal-icon').textContent = icon;
+            modal.style.display = 'flex';
+        }
+
+        // Cerrar modal informativo
+        function closeInfoModal() {
+            const modal = document.getElementById('info-modal');
+            modal.style.display = 'none';
+        }
+
         // Verificar si ya hay sesión existente
         function checkExistingSession() {
             const userName = localStorage.getItem('userName');
@@ -5487,7 +5502,7 @@
             );
 
             if (previousPosters.length === 0) {
-                alert('No tienes votos registrados.');
+                showInfoModal('No tienes votos registrados.', 'Votos anteriores', '📊');
                 return;
             }
 
@@ -5636,21 +5651,21 @@
         // Enviar votos de posters
         async function submitPosterVotes() {
             if (posterVotingState.selectedPosters.size === 0) {
-                alert('Por favor, selecciona al menos un poster antes de enviar.');
+                showInfoModal('Por favor, selecciona al menos un poster antes de enviar.', 'Selección vacía', '📋');
                 return;
             }
 
             try {
                 const userHash = await getUserHash();
                 if (!userHash) {
-                    alert('Por favor, inicia sesión para votar.');
+                    showInfoModal('Por favor, inicia sesión para votar.', 'Sesión requerida', '🔐');
                     return;
                 }
 
                 // Verificar que no exceda el límite
                 const totalVotesAfter = posterVotingState.votesUsed + posterVotingState.selectedPosters.size;
                 if (totalVotesAfter > posterVotingState.maxVotes) {
-                    alert(`No puedes votar por más de ${posterVotingState.maxVotes} posters en total.`);
+                    showInfoModal(`No puedes votar por más de ${posterVotingState.maxVotes} posters en total.`, 'Límite alcanzado', '⚠️');
                     return;
                 }
 
@@ -5660,7 +5675,7 @@
                     device_fingerprint: userHash
                 }));
 
-                console.log(`📤 Enviando ${votes.length} voto(s) de posters (total: ${totalVotesAfter}/3)`);
+                console.log(`📤 Enviando ${votes.length} voto(s) de posters (total: ${totalVotesAfter}/4)`);
 
                 const { data, error } = await supabaseClient
                     .from('poster_votes')
@@ -5671,15 +5686,15 @@
 
                     // Verificar si ya votó por estos posters
                     if (error.code === '23505') {
-                        alert('Ya has votado por alguno de estos posters anteriormente.');
+                        showInfoModal('Ya has votado por alguno de estos posters anteriormente.', 'Voto duplicado', '⚠️');
                         await checkUserPosterVotes();
                         renderPosters();
                         return;
                     }
 
                     // Verificar si excede el límite
-                    if (error.message && error.message.includes('Maximum 3 votes')) {
-                        alert('Has alcanzado el máximo de 3 votos permitidos.');
+                    if (error.message && (error.message.includes('Maximum 3 votes') || error.message.includes('Maximum 4 votes'))) {
+                        showInfoModal('Has alcanzado el máximo de 4 votos permitidos.', 'Límite alcanzado', '⚠️');
                         await checkUserPosterVotes();
                         renderPosters();
                         return;
@@ -5730,7 +5745,7 @@
                     `).join('')}
 
                     <div style="background: rgba(102, 126, 234, 0.1); padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center;">
-                        <strong style="color: var(--color-secondary-dark);">Total de votos usados: ${votesUsedTotal}/3</strong>
+                        <strong style="color: var(--color-secondary-dark);">Total de votos usados: ${votesUsedTotal}/4</strong>
                         ${canVoteMore ? `
                             <p style="color: #666; font-size: 14px; margin-top: 8px;">
                                 💎 ¡Todavía puedes votar por ${posterVotingState.votesAvailable} poster(es) más!
@@ -5940,6 +5955,20 @@
                     ✓ Cerrar sesión
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal de mensaje informativo (reemplazo de alert) -->
+    <div id="info-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 122, 143, 0.95); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+        <div style="background: white; border-radius: 20px; padding: 40px; max-width: 500px; width: 90%; box-shadow: 0 25px 80px rgba(0, 217, 192, 0.4); text-align: center; border: 3px solid #00D9C0;">
+            <div id="info-modal-icon" style="width: 80px; height: 80px; margin: 0 auto 25px; background: linear-gradient(135deg, rgba(0, 217, 192, 0.15), rgba(0, 245, 224, 0.2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 50px; border: 3px solid #00D9C0;">ℹ️</div>
+            <h3 id="info-modal-title" style="color: #006B7D; font-size: 24px; margin-bottom: 15px; font-weight: 700;">Información</h3>
+            <p id="info-modal-message" style="color: #0B7A8F; font-size: 16px; margin-bottom: 35px; line-height: 1.6; font-weight: 500;">
+                Mensaje informativo
+            </p>
+            <button onclick="closeInfoModal()" style="padding: 16px 32px; border: none; background: linear-gradient(135deg, #00D9C0, #00F5E0); color: white; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0, 217, 192, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 217, 192, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0, 217, 192, 0.3)';">
+                ✓ Entendido
+            </button>
         </div>
     </div>
 
