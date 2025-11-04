@@ -130,6 +130,44 @@ The project has MCP servers configured for enhanced capabilities:
 - Hybrid storage (Supabase + localStorage)
 - Real-time tag cloud visualization in separate files (`tagcloud.html`)
 
+### 7. Winner Announcement Pages (NEW - 2025-11-03)
+Public-facing pages to announce and celebrate winners with motivational messages.
+
+**Poster Winner Page:**
+- URL: `?poster-ganador` or `#poster-ganador`
+- Displays: Poster with highest vote count
+- Design: Turquoise-themed card with trophy icon
+- Components:
+  - White page title "Poster ganador" (outside container)
+  - Turquoise card container with trophy 🏆 (centered, no animation)
+  - Poster title, author, organization, thumbnail
+  - Vote statistics
+  - Motivational message for all participants (no left border)
+- Functions: `loadPosterWinner()`, `renderPosterWinner()` - search in index.html
+- Database: Queries `public_poster_results` view, orders by `total_votes DESC`
+
+**Talk Winner Page:**
+- URL: `?ponencia-ganador` or `#ponencia-ganador`
+- Displays: Talk with highest point total
+- Design: Same turquoise theme as poster page
+- Components:
+  - White page title "Ponencia ganadora" (outside container)
+  - Turquoise card with trophy 🏆 (centered, no animation)
+  - Talk title
+  - Statistics: total points and vote count
+  - Motivational message for all speakers (no left border)
+- Functions: `loadTalkWinner()`, `renderTalkWinner()` - search in index.html
+- Database: Queries `voting_topics` and `votes` tables, calculates scores with [6,5,4,3,2,1] points map
+
+**Design Specifications:**
+- Color scheme: Turquoise (#00D9C0) to match app branding (NOT gold/yellow)
+- Trophy: 100px, centered inside card, no animation
+- Card: `linear-gradient(135deg, rgba(0,217,192,0.15), rgba(0,245,224,0.1))`, 3px turquoise border
+- Stats: Turquoise gradient text (`#00D9C0` to `#00F5E0`)
+- No confetti icons, no "¡Ganador!" badge
+- `.winner-title::before`: Explicitly removed to prevent vertical bar inheritance
+- Motivational section: No `border-left` (removed for clean look)
+
 ## Critical Implementation Details
 
 ### URL Routing (Hash-based SPA)
@@ -138,8 +176,10 @@ The project has MCP servers configured for enhanced capabilities:
 window.location.hash = '#screen-name';
 
 // Public results screens (no auth required)
-#results          → Voting results (talks)
-#poster-results   → Poster voting results
+#results           → Voting results (talks)
+#poster-results    → Poster voting results
+#poster-ganador    → Poster winner announcement (NEW)
+#ponencia-ganador  → Talk winner announcement (NEW)
 ```
 
 ### Supabase Client Initialization
@@ -310,6 +350,13 @@ Expected: 0 errors, 0 warnings, 0 suggestions
 
 ## Last Updated
 
-**Date:** 2025-10-31
-**Version:** 1.1.0-beta
+**Date:** 2025-11-03
+**Version:** 1.2.0-beta
 **Security Status:** Supabase Security Advisor - 100% Clean (0 errors, 0 warnings)
+
+**Latest Changes (2025-11-03):**
+- Added winner announcement pages for posters and talks
+- Implemented turquoise color scheme for consistency
+- Created public URLs: `?poster-ganador` and `?ponencia-ganador`
+- Added motivational messages for all participants
+- Optimized CSS to prevent visual conflicts (removed inherited borders)
