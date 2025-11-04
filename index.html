@@ -1768,7 +1768,7 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 3px solid transparent;
             position: relative;
-            cursor: pointer;
+            cursor: default;
         }
 
         .poster-card:hover {
@@ -1782,8 +1782,8 @@
         }
 
         .poster-card.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+            opacity: 0.7;
+            cursor: default;
         }
 
         .poster-card.disabled:hover {
@@ -1811,24 +1811,74 @@
 
         .poster-zoom-icon {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.7);
+            bottom: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #00D9C0 0%, #00B8A3 100%);
             color: white;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            font-size: 24px;
+            opacity: 1;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
             z-index: 2;
+            border: 3px solid white;
         }
 
-        .poster-card:hover .poster-zoom-icon {
-            opacity: 1;
+        .poster-zoom-icon:hover {
+            transform: scale(1.15);
+            box-shadow: 0 6px 20px rgba(0, 217, 192, 0.6);
+        }
+
+        .poster-vote-button {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: white;
+            color: #333;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 2px solid transparent;
+        }
+
+        .poster-vote-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            background: #f8f8f8;
+        }
+
+        .poster-card.voted .poster-vote-button,
+        .poster-card.voted .poster-vote-button:hover {
+            background: linear-gradient(135deg, #00D9C0 0%, #00B8A3 100%);
+            color: white;
+            border-color: white;
+            cursor: default;
+        }
+
+        .poster-card.disabled .poster-vote-button {
+            background: #e0e0e0;
+            color: #999;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .poster-card.disabled .poster-vote-button:hover {
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .poster-vote-badge {
@@ -2127,7 +2177,7 @@
             background: rgba(0, 0, 0, 0.95);
             z-index: 10000;
             overflow: auto;
-            padding: 20px;
+            padding: 0;
         }
 
         .poster-modal.active {
@@ -2138,10 +2188,11 @@
 
         .poster-modal-content {
             position: relative;
-            max-width: 900px;
-            width: 100%;
-            background: white;
-            border-radius: 20px;
+            max-width: 95vw;
+            max-height: 95vh;
+            width: auto;
+            height: auto;
+            background: transparent;
             overflow: hidden;
             animation: modalZoom 0.3s ease;
         }
@@ -2158,43 +2209,22 @@
         }
 
         .poster-modal-image {
-            width: 100%;
-            max-height: 70vh;
+            width: auto;
+            height: auto;
+            max-width: 95vw;
+            max-height: 95vh;
             object-fit: contain;
-            background: #f5f5f5;
-        }
-
-        .poster-modal-info {
-            padding: 30px;
-            background: white;
-        }
-
-        .poster-modal-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--color-secondary-dark);
-            margin-bottom: 15px;
-        }
-
-        .poster-modal-author {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 8px;
-        }
-
-        .poster-modal-organization {
-            font-size: 13px;
-            color: #888;
-            font-style: italic;
+            background: transparent;
+            display: block;
         }
 
         .poster-modal-close {
-            position: absolute;
+            position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.7);
+            background: linear-gradient(135deg, #00D9C0 0%, #00B8A3 100%);
             color: white;
-            border: none;
+            border: 3px solid white;
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -2205,11 +2235,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
         }
 
         .poster-modal-close:hover {
-            background: rgba(0, 0, 0, 0.9);
-            transform: rotate(90deg);
+            transform: scale(1.15) rotate(90deg);
+            box-shadow: 0 6px 20px rgba(0, 217, 192, 0.8);
         }
 
         .poster-confirmation-message {
@@ -3668,11 +3699,6 @@
             <button class="poster-modal-close" onclick="closePosterModal()">×</button>
             <div class="poster-modal-content">
                 <img id="poster-modal-image" class="poster-modal-image" src="" alt="Poster completo" onerror="if(!this.dataset.fallbackUsed){this.dataset.fallbackUsed='true';this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%221200%22%3E%3Crect width=%22800%22 height=%221200%22 fill=%22%23f0f0f0%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2240%22 fill=%22%23999%22%3EPoster no disponible%3C/text%3E%3C/svg%3E';}">
-                <div class="poster-modal-info">
-                    <h3 class="poster-modal-title" id="poster-modal-title"></h3>
-                    <p class="poster-modal-author" id="poster-modal-author"></p>
-                    <p class="poster-modal-organization" id="poster-modal-organization"></p>
-                </div>
             </div>
         </div>
     </div>
@@ -5739,20 +5765,25 @@
                 const isDisabled = !isSelected && (currentSelectionCount >= posterVotingState.votesAvailable);
                 const cannotVoteMore = posterVotingState.votesAvailable === 0;
 
-                // Determinar el badge a mostrar
-                let badge = '';
-                if (isPreviouslyVoted) {
-                    badge = '<div class="poster-vote-badge" style="background: linear-gradient(135deg, #0B7A8F 0%, #006B7D 100%); color: white;">✅ Ya votado</div>';
-                } else if (isSelected) {
-                    badge = '<div class="poster-vote-badge">✓ Seleccionado</div>';
+                // Determinar texto y estado del botón
+                let voteButtonText = 'Votar';
+                let voteButtonIcon = '';
+                if (isSelected || isPreviouslyVoted) {
+                    voteButtonText = 'Votado';
+                    voteButtonIcon = '✓';
+                } else if (cannotVoteMore || isDisabled) {
+                    voteButtonText = 'Sin votos';
+                    voteButtonIcon = '✕';
                 }
 
                 return `
                     <div class="poster-card ${isSelected ? 'voted' : ''} ${isPreviouslyVoted ? 'voted' : ''} ${isDisabled || cannotVoteMore ? 'disabled' : ''}"
-                         onclick="${cannotVoteMore || isPreviouslyVoted ? 'openPosterModal' : 'togglePosterVote'}('${poster.id}')"
                          data-poster-id="${poster.id}">
                         <div class="poster-image-container">
-                            ${badge}
+                            <div class="poster-vote-button" onclick="event.stopPropagation(); ${cannotVoteMore || isPreviouslyVoted ? 'openPosterModal' : 'togglePosterVote'}('${poster.id}')">
+                                ${voteButtonIcon ? `<span>${voteButtonIcon}</span>` : ''}
+                                <span>${voteButtonText}</span>
+                            </div>
                             <div class="poster-zoom-icon" onclick="event.stopPropagation(); openPosterModal('${poster.id}')">🔍</div>
                             <img class="poster-image"
                                  src="${poster.thumbnail_url}"
@@ -5961,9 +5992,6 @@
             if (!poster) return;
 
             document.getElementById('poster-modal-image').src = poster.full_image_url;
-            document.getElementById('poster-modal-title').textContent = poster.title;
-            document.getElementById('poster-modal-author').textContent = `👤 ${poster.author_name}`;
-            document.getElementById('poster-modal-organization').textContent = poster.author_organization ? `🏛️ ${poster.author_organization}` : '';
 
             const modal = document.getElementById('poster-modal');
             modal.classList.add('active');
