@@ -5,6 +5,48 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.2.1-beta] - 2025-11-04
+
+### Seguridad
+- **Corrección de warning de Supabase Security Linter**: `function_search_path_mutable`
+  - Función afectada: `validate_max_poster_votes()`
+  - Problema: `search_path` mutable (vulnerable a schema poisoning)
+  - Solución: Añadido `SET search_path = public` + `SECURITY DEFINER`
+  - Script de corrección: `fix_validate_max_poster_votes_search_path.sql`
+  - Estado: **100% Clean** - 0 warnings, 0 errores
+
+### Cambiado
+- **Funciones actualizadas con sintaxis moderna**:
+  - `validate_max_poster_votes()`: `RETURNS TRIGGER` + `SECURITY DEFINER` + `SET search_path = public`
+  - `update_updated_at_column()`: `RETURNS TRIGGER` + `SECURITY DEFINER` + `SET search_path = public`
+  - Archivos: `poster_voting_schema.sql`, `update_poster_votes_limit_to_4.sql`
+
+### Detalles Técnicos
+
+#### Archivos Modificados
+- `poster_voting_schema.sql` - Funciones con `search_path` fijo
+- `update_poster_votes_limit_to_4.sql` - Seguridad mejorada + lógica restaurada
+
+#### Nuevo Archivo SQL
+- `fix_validate_max_poster_votes_search_path.sql` - Script de corrección inmediata
+  - Recrea función con `SET search_path = public`
+  - Incluye verificaciones automáticas
+  - Previene ataques de schema poisoning
+
+#### Commit
+```
+612f221 security: Corregir search_path en validate_max_poster_votes
+```
+
+#### Estado de Seguridad del Proyecto
+- ✅ 8 funciones con `search_path` fijo
+- ✅ 0 warnings en Supabase Security Linter
+- ✅ RLS habilitado en 20 tablas públicas
+- ✅ 40+ políticas RLS granulares
+- ✅ 3 vistas con `security_invoker = true`
+
+---
+
 ## [1.2.0-beta] - 2025-11-03
 
 ### Añadido
