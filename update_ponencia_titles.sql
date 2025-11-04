@@ -6,7 +6,7 @@
 -- ============================================
 
 -- PASO 1: Verificar títulos actuales
-SELECT id, title, subtitle
+SELECT id, title
 FROM voting_topics
 WHERE title IN (
     'La optimización de los metadatos del contrato menor',
@@ -36,7 +36,7 @@ SET title = 'Hacer fácil lo complejo: la Comunicación Previa de obras definiti
 WHERE title = 'Anidamiento de funciones para reducir el catálogo de procedimientos';
 
 -- PASO 3: Verificar los cambios
-SELECT id, title, subtitle, updated_at
+SELECT id, title, updated_at
 FROM voting_topics
 WHERE title IN (
     'La simplicidad detrás del cálculo: solicitud de instalación de barras de bar en vía pública',
