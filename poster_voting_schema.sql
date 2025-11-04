@@ -51,13 +51,18 @@ CREATE INDEX idx_poster_votes_device ON poster_votes(device_fingerprint);
 -- ============================================
 
 -- Trigger to update updated_at timestamp
+-- SECURITY: Uses SET search_path = public to prevent schema poisoning
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
     NEW.updated_at = NOW();
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SET search_path = public;
+$$;
 
 CREATE TRIGGER update_posters_updated_at
     BEFORE UPDATE ON posters
@@ -65,8 +70,13 @@ CREATE TRIGGER update_posters_updated_at
     EXECUTE FUNCTION update_updated_at_column();
 
 -- Trigger to validate max 3 votes per attendee
+-- SECURITY: Uses SET search_path = public to prevent schema poisoning
 CREATE OR REPLACE FUNCTION validate_max_poster_votes()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 DECLARE
     vote_count INTEGER;
 BEGIN
@@ -95,7 +105,7 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SET search_path = public;
+$$;
 
 CREATE TRIGGER validate_max_poster_votes_trigger
     BEFORE INSERT ON poster_votes

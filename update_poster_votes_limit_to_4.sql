@@ -7,24 +7,42 @@
 -- ============================================
 
 -- Recrear la función con el nuevo límite de 4 votos
+-- IMPORTANTE: Incluye SET search_path = public para seguridad
 CREATE OR REPLACE FUNCTION validate_max_poster_votes()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 DECLARE
     vote_count INTEGER;
 BEGIN
-    -- Contar votos existentes del usuario
-    SELECT COUNT(*) INTO vote_count
-    FROM poster_votes
-    WHERE device_fingerprint = NEW.device_fingerprint;
+    -- Contar votos existentes del usuario autenticado
+    IF NEW.attendee_id IS NOT NULL THEN
+        SELECT COUNT(*) INTO vote_count
+        FROM poster_votes
+        WHERE attendee_id = NEW.attendee_id;
 
-    -- Validar máximo 4 votos (actualizado de 3 a 4)
-    IF vote_count >= 4 THEN
-        RAISE EXCEPTION 'Maximum 4 votes allowed per user';
+        IF vote_count >= 4 THEN
+            RAISE EXCEPTION 'Maximum 4 votes per attendee reached';
+        END IF;
+    END IF;
+
+    -- Contar votos existentes del dispositivo (votación anónima)
+    IF NEW.device_fingerprint IS NOT NULL AND NEW.attendee_id IS NULL THEN
+        SELECT COUNT(*) INTO vote_count
+        FROM poster_votes
+        WHERE device_fingerprint = NEW.device_fingerprint
+        AND attendee_id IS NULL;
+
+        IF vote_count >= 4 THEN
+            RAISE EXCEPTION 'Maximum 4 votes per device reached';
+        END IF;
     END IF;
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- ============================================
 -- PASO 2: Verificar que el trigger existe y está activo
