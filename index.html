@@ -2765,7 +2765,7 @@
 
                 <div class="input-group with-icon">
                     <span class="input-icon">📧</span>
-                    <input type="email" id="user-email" placeholder="tu@email.com" required autocomplete="email">
+                    <input type="email" id="user-email" placeholder="Tu mejor mail corporativo" required autocomplete="email">
                 </div>
 
                 <div class="legal-checkbox">
@@ -4130,15 +4130,19 @@
                 saveBtn.disabled = true;
                 saveBtn.textContent = '⏳ Guardando...';
 
-                // Obtener hash del usuario
-                const userHash = await getUserHash();
-                if (!userHash) {
-                    throw new Error('No se pudo obtener identificador de usuario');
+                // Obtener email del usuario registrado
+                const userEmail = localStorage.getItem('userEmail');
+                if (!userEmail) {
+                    throw new Error('Debes registrarte primero para poder votar');
                 }
+
+                // Obtener hash del usuario (mantener para compatibilidad)
+                const userHash = await getUserHash();
 
                 // Preparar los votos para guardar en Supabase
                 const votesToSave = Object.entries(selectedVotes).map(([topicId, voteData]) => ({
                     voting_topic_id: topicId,
+                    user_email: userEmail,
                     device_fingerprint: userHash,
                     selected_options: [voteData.optionIndex],
                     is_partial: true // Marcar como voto parcial
@@ -4148,7 +4152,7 @@
                 const { data, error } = await supabaseClient
                     .from('votes')
                     .upsert(votesToSave, {
-                        onConflict: 'voting_topic_id,device_fingerprint',
+                        onConflict: 'voting_topic_id,user_email',
                         ignoreDuplicates: false
                     });
 
@@ -4225,9 +4229,9 @@
         // Función para cargar votos parciales desde Supabase
         async function loadPartialVotes() {
             try {
-                // Obtener hash del usuario
-                const userHash = await getUserHash();
-                if (!userHash) {
+                // Obtener email del usuario registrado
+                const userEmail = localStorage.getItem('userEmail');
+                if (!userEmail) {
                     console.log('No hay usuario identificado, saltando carga de votos');
                     return;
                 }
@@ -4236,7 +4240,7 @@
                 const { data: votes, error } = await supabaseClient
                     .from('votes')
                     .select('voting_topic_id, selected_options, is_partial')
-                    .eq('device_fingerprint', userHash);
+                    .eq('user_email', userEmail);
 
                 if (error) {
                     console.error('Error al cargar votos:', error);
@@ -4355,17 +4359,21 @@
             }
 
             try {
-                // Obtener hash del usuario
-                const userHash = await getUserHash();
-                if (!userHash) {
-                    throw new Error('No se pudo obtener identificador de usuario');
+                // Obtener email del usuario registrado
+                const userEmail = localStorage.getItem('userEmail');
+                if (!userEmail) {
+                    throw new Error('Debes registrarte primero para poder votar');
                 }
+
+                // Obtener hash del usuario (mantener para compatibilidad)
+                const userHash = await getUserHash();
 
                 // Preparar todos los votos para actualizar (marcar como finales)
                 const votesToUpdate = [];
                 for (const [topicId, selection] of Object.entries(selectedVotes)) {
                     votesToUpdate.push({
                         voting_topic_id: topicId,
+                        user_email: userEmail,
                         device_fingerprint: userHash,
                         selected_options: [selection.optionIndex],
                         is_partial: false // Marcar como voto final
@@ -4378,7 +4386,7 @@
                 const { data, error } = await supabaseClient
                     .from('votes')
                     .upsert(votesToUpdate, {
-                        onConflict: 'voting_topic_id,device_fingerprint',
+                        onConflict: 'voting_topic_id,user_email',
                         ignoreDuplicates: false
                     })
                     .select();
@@ -5380,6 +5388,239 @@
             return hashHex.substring(0, 16);
         }
 
+        // =====================================================
+        // SISTEMA DE WHITELIST - MIGRADO A SUPABASE
+        // =====================================================
+        // Los emails autorizados ahora están en la tabla 'authorized_emails' 
+        // en Supabase para mayor seguridad (no visibles en código fuente)
+        // Ver: authorized_emails_migration.sql
+
+        // Función para verificar si un email está autorizado (consulta a Supabase)
+        async function checkEmailAuthorized(email) {
+            try {
+                if (!email || email.trim() === '') {
+                    return false;
+                }
+
+                const emailLower = email.toLowerCase().trim();
+
+                // Consultar tabla authorized_emails en Supabase
+                const { data, error } = await supabaseClient
+                    .from('authorized_emails')
+                    .select('email, active')
+                    .eq('email', emailLower)
+                    .eq('active', true)
+                    .maybeSingle(); // Retorna null si no existe, en vez de error
+
+                if (error) {
+                    console.error('Error al verificar email autorizado:', error);
+                    return false;
+                }
+
+                // Si data existe y el email está activo, está autorizado
+                return !!data;
+
+            } catch (error) {
+                console.error('Error en checkEmailAuthorized:', error);
+                return false;
+            }
+        }
+
+        // Array legacy (ya no se usa, mantenido por compatibilidad)
+        const authorizedEmails = [];
+
+
+        // Validar si el email parece sospechoso o no corporativo
+        async function validateEmailQuality(email) {
+            const emailLower = email.toLowerCase();
+            const domain = emailLower.split('@')[1];
+            const localPart = emailLower.split('@')[0];
+
+            // Verificar primero si el email está en la whitelist (Supabase)
+            const isAuthorized = await checkEmailAuthorized(emailLower);
+            if (isAuthorized) {
+                return {
+                    valid: true,
+                    type: 'authorized',
+                    message: '✅ Email Autorizado'
+                };
+            }
+
+            // Lista de dominios desechables conocidos (ampliable)
+            const disposableDomains = [
+                'temp-mail.com', 'tempmail.com', 'mailinator.com', 'guerrillamail.com',
+                'throwaway.email', '10minutemail.com', 'trashmail.com', 'yopmail.com',
+                'maildrop.cc', 'getnada.com', 'fakeinbox.com'
+            ];
+
+            // Lista de dominios gratuitos populares (advertencia suave)
+            const freeEmailDomains = [
+                'gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'icloud.com',
+                'live.com', 'msn.com', 'mail.com', 'aol.com'
+            ];
+
+            // Verificar dominios desechables (bloqueo fuerte)
+            if (disposableDomains.includes(domain)) {
+                return {
+                    valid: false,
+                    type: 'disposable',
+                    message: '⚠️ Email Desechable Detectado'
+                };
+            }
+
+            // Verificar si tiene muchos números en el nombre (patrón sospechoso)
+            const numberCount = (localPart.match(/\d/g) || []).length;
+            if (numberCount >= 6) {
+                return {
+                    valid: false,
+                    type: 'suspicious',
+                    message: '⚠️ Email Sospechoso'
+                };
+            }
+
+            // Advertencia suave para emails gratuitos (no bloquea)
+            if (freeEmailDomains.includes(domain)) {
+                return {
+                    valid: true,
+                    type: 'warning',
+                    message: '💼 Recomendación: Email Corporativo'
+                };
+            }
+
+            // Email parece corporativo
+            return {
+                valid: true,
+                type: 'corporate',
+                message: null
+            };
+        }
+
+        // Mostrar modal de advertencia de email
+        function showEmailWarning(validationResult, email, callback) {
+            let title, message, icon;
+
+            if (validationResult.type === 'authorized') {
+                title = '✅ ¡Bienvenido/a!';
+                message = `
+                    <p style="margin-bottom: 15px;">Tu email <strong>${email}</strong> está autorizado y verificado.</p>
+                    <p style="margin-bottom: 15px; padding: 15px; background: rgba(0, 217, 192, 0.1); border-left: 4px solid #00D9C0; border-radius: 5px;">
+                        <strong>✅ Email Verificado:</strong> Tienes acceso completo a todas las funcionalidades del congreso,
+                        incluyendo votaciones de ponencias y pósters.
+                    </p>
+                    <p style="color: #00D9C0; font-weight: 500;">¡Disfruta de la experiencia!</p>
+                    <div style="margin-top: 20px;">
+                        <button onclick="closeEmailWarningModal(true)" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #00D9C0 0%, #00B8A3 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500;">
+                            Continuar
+                        </button>
+                    </div>
+                `;
+                icon = '🎉';
+            } else if (validationResult.type === 'disposable') {
+                title = '⚠️ Email Desechable Detectado';
+                message = `
+                    <p style="margin-bottom: 15px;">El email <strong>${email}</strong> parece ser un email temporal o desechable.</p>
+                    <p style="margin-bottom: 15px; padding: 15px; background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; border-radius: 5px;">
+                        <strong>⚠️ Importante:</strong> El sistema de votación valida que el email introducido sea el mismo que el utilizado al registrarte.
+                        Si usas un email temporal, <strong>no podrás votar ni participar</strong> en las actividades del congreso.
+                    </p>
+                    <p>Por favor, <strong>usa tu email corporativo real</strong> para garantizar tu participación completa.</p>
+                `;
+                icon = '🚫';
+            } else if (validationResult.type === 'suspicious') {
+                title = '⚠️ Email Sospechoso';
+                message = `
+                    <p style="margin-bottom: 15px;">El email <strong>${email}</strong> tiene un formato poco habitual para un email corporativo.</p>
+                    <p style="margin-bottom: 15px; padding: 15px; background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; border-radius: 5px;">
+                        <strong>💡 ¿Por qué es importante?</strong> El sistema de votación coteja que el email introducido sea el mismo que el utilizado al darte de alta.
+                        Si no usas tu email corporativo real, <strong>podrías tener problemas para votar</strong> en ponencias y pósters.
+                    </p>
+                    <p>Te recomendamos usar tu <strong>email corporativo oficial</strong> (ej: nombre@tuempresa.com).</p>
+                `;
+                icon = '⚠️';
+            } else if (validationResult.type === 'warning') {
+                title = '💼 Recomendación: Email Corporativo';
+                message = `
+                    <p style="margin-bottom: 15px;">Has introducido un email personal: <strong>${email}</strong></p>
+                    <p style="margin-bottom: 15px; padding: 15px; background: rgba(0, 217, 192, 0.1); border-left: 4px solid #00D9C0; border-radius: 5px;">
+                        <strong>💡 Recomendación:</strong> Para garantizar tu participación en las votaciones de ponencias y pósters,
+                        te recomendamos usar tu <strong>email corporativo</strong>. El sistema valida que uses el mismo email en todas las interacciones.
+                    </p>
+                    <p>Si prefieres continuar con este email, asegúrate de usarlo siempre al acceder a la aplicación.</p>
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button onclick="closeEmailWarningModal(false)" style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                            Cambiar Email
+                        </button>
+                        <button onclick="closeEmailWarningModal(true)" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #00D9C0 0%, #00B8A3 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                            Continuar Igualmente
+                        </button>
+                    </div>
+                `;
+                icon = '💼';
+            }
+
+            // Crear modal
+            const modal = document.createElement('div');
+            modal.id = 'email-warning-modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                padding: 20px;
+            `;
+
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    border-radius: 15px;
+                    padding: 30px;
+                    max-width: 500px;
+                    width: 100%;
+                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+                    text-align: left;
+                ">
+                    <div style="text-align: center; font-size: 60px; margin-bottom: 20px;">${icon}</div>
+                    <h3 style="margin: 0 0 20px 0; color: #333; font-size: 20px; text-align: center;">${title}</h3>
+                    <div style="color: #666; font-size: 14px; line-height: 1.6;">
+                        ${message}
+                    </div>
+                    ${validationResult.type !== 'warning' && validationResult.type !== 'authorized' ? `
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button onclick="closeEmailWarningModal(false)" style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                            Cambiar Email
+                        </button>
+                        <button onclick="closeEmailWarningModal(true)" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                            Continuar de Todas Formas
+                        </button>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Guardar callback para uso posterior
+            window.emailWarningCallback = callback;
+        }
+
+        // Cerrar modal de advertencia de email
+        function closeEmailWarningModal(proceed) {
+            const modal = document.getElementById('email-warning-modal');
+            if (modal) {
+                modal.remove();
+            }
+            if (window.emailWarningCallback) {
+                window.emailWarningCallback(proceed);
+                window.emailWarningCallback = null;
+            }
+        }
+
         // Enviar formulario de bienvenida
         async function submitWelcome(event) {
             event.preventDefault();
@@ -5401,6 +5642,30 @@
                 showLegalRequiredMessage();
                 return;
             }
+
+            // Validar calidad del email (consulta a Supabase para whitelist)
+            const emailValidation = await validateEmailQuality(email);
+
+            // Si el email está autorizado o requiere advertencia, mostrar modal
+            if (emailValidation.type === 'authorized' || !emailValidation.valid || emailValidation.type === 'warning') {
+                showEmailWarning(emailValidation, email, async (proceed) => {
+                    if (proceed) {
+                        // Usuario decide continuar
+                        await completeRegistration(name, email, submitBtn);
+                    } else {
+                        // Usuario quiere cambiar el email
+                        document.getElementById('user-email').focus();
+                    }
+                });
+                return;
+            }
+
+            // Email válido corporativo (no en whitelist), continuar sin mensaje
+            await completeRegistration(name, email, submitBtn);
+        }
+
+        // Completar el registro (extraído para reutilización)
+        async function completeRegistration(name, email, submitBtn) {
 
             // Loading state
             submitBtn.classList.add('loading');
@@ -5650,16 +5915,16 @@
         // Verificar si el usuario ya votó
         async function checkUserPosterVotes() {
             try {
-                const userHash = await getUserHash();
-                if (!userHash) {
-                    showPosterMessage('Por favor, inicia sesión para votar.', 'error');
+                const userEmail = localStorage.getItem('userEmail');
+                if (!userEmail) {
+                    showPosterMessage('Por favor, regístrate para votar.', 'error');
                     return;
                 }
 
                 const { data: votes, error } = await supabaseClient
                     .from('poster_votes')
                     .select('poster_id')
-                    .eq('device_fingerprint', userHash);
+                    .eq('user_email', userEmail);
 
                 if (error) {
                     console.error('Error al verificar votos:', error);
@@ -5892,9 +6157,17 @@
                     return;
                 }
 
-                // Preparar votos con hash del usuario
+                // Obtener email del usuario registrado
+                const userEmail = localStorage.getItem('userEmail');
+                if (!userEmail) {
+                    showInfoModal('Debes registrarte primero para poder votar.', 'Registro requerido', '⚠️');
+                    return;
+                }
+
+                // Preparar votos con email del usuario
                 const votes = Array.from(posterVotingState.selectedPosters).map(posterId => ({
                     poster_id: posterId,
+                    user_email: userEmail,
                     device_fingerprint: userHash
                 }));
 

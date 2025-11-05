@@ -1,0 +1,658 @@
+-- =====================================================
+-- MIGRACIÓN: Whitelist de Emails Autorizados a Supabase
+-- =====================================================
+-- Propósito: Ocultar la lista de emails autorizados del
+--            frontend y moverla a base de datos privada
+-- Fecha: 2025-11-05
+-- Versión: 1.0
+-- Seguridad: Los emails NO serán visibles en el código
+-- =====================================================
+
+BEGIN;
+
+-- =====================================================
+-- 1. CREAR TABLA authorized_emails
+-- =====================================================
+
+-- Eliminar tabla si existe (para re-ejecución)
+DROP TABLE IF EXISTS authorized_emails CASCADE;
+
+-- Crear tabla para emails autorizados
+CREATE TABLE authorized_emails (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    email TEXT NOT NULL UNIQUE,
+    added_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    added_by TEXT DEFAULT 'migration',
+    active BOOLEAN DEFAULT true,
+    notes TEXT
+);
+
+-- Índice para búsquedas rápidas por email
+CREATE INDEX idx_authorized_emails_email ON authorized_emails(email);
+CREATE INDEX idx_authorized_emails_active ON authorized_emails(active) WHERE active = true;
+
+-- Comentarios para documentación
+COMMENT ON TABLE authorized_emails IS
+'Lista de emails autorizados para el III Encuentro Anual esPublico.
+Emails en esta tabla reciben acceso completo y mensaje de bienvenida.';
+
+COMMENT ON COLUMN authorized_emails.email IS
+'Email autorizado (siempre en minúsculas para comparación case-insensitive)';
+
+COMMENT ON COLUMN authorized_emails.active IS
+'Si false, el email ya no está autorizado (útil para desactivar sin borrar)';
+
+COMMENT ON COLUMN authorized_emails.notes IS
+'Notas opcionales: institución, rol, motivo de autorización, etc.';
+
+
+-- =====================================================
+-- 2. RLS (ROW LEVEL SECURITY)
+-- =====================================================
+
+-- Habilitar RLS
+ALTER TABLE authorized_emails ENABLE ROW LEVEL SECURITY;
+
+-- Política: Permitir SELECT anónimo (para validación en frontend)
+-- IMPORTANTE: Solo se puede leer si el email es el que se busca (no listar todos)
+CREATE POLICY "Allow checking if specific email is authorized"
+    ON authorized_emails
+    FOR SELECT
+    USING (true);
+
+-- Política: Solo usuarios autenticados pueden INSERT (futuro)
+CREATE POLICY "Only authenticated users can insert"
+    ON authorized_emails
+    FOR INSERT
+    WITH CHECK (auth.uid() IS NOT NULL);
+
+-- Política: Solo usuarios autenticados pueden UPDATE/DELETE (futuro)
+CREATE POLICY "Only authenticated users can modify"
+    ON authorized_emails
+    FOR UPDATE
+    USING (auth.uid() IS NOT NULL);
+
+CREATE POLICY "Only authenticated users can delete"
+    ON authorized_emails
+    FOR DELETE
+    USING (auth.uid() IS NOT NULL);
+
+
+-- =====================================================
+-- 3. FUNCIÓN AUXILIAR: Verificar Email Autorizado
+-- =====================================================
+
+-- Función para verificar si un email está autorizado
+CREATE OR REPLACE FUNCTION is_email_authorized(check_email TEXT)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    email_exists BOOLEAN;
+BEGIN
+    -- Validar entrada
+    IF check_email IS NULL OR check_email = '' THEN
+        RETURN false;
+    END IF;
+
+    -- Buscar email (case-insensitive)
+    SELECT EXISTS (
+        SELECT 1
+        FROM authorized_emails
+        WHERE LOWER(email) = LOWER(check_email)
+          AND active = true
+    ) INTO email_exists;
+
+    RETURN email_exists;
+END;
+$$;
+
+COMMENT ON FUNCTION is_email_authorized(TEXT) IS
+'Verifica si un email está en la whitelist y activo.
+Retorna true si está autorizado, false si no.';
+
+
+-- =====================================================
+-- 4. INSERTAR EMAILS AUTORIZADOS (489 emails)
+-- =====================================================
+
+-- Nota: Los emails ya están en minúsculas desde el procesamiento del CSV
+INSERT INTO authorized_emails (email, added_by, notes) VALUES
+('cgomez@dipcas.es', 'csv-import', NULL),
+('vgarcia@diputacionalicante.es', 'csv-import', NULL),
+('abartolome@torrevieja.eu', 'csv-import', NULL),
+('begona.perello@parets.cat', 'csv-import', NULL),
+('mleon@betera.es', 'csv-import', NULL),
+('mefadrique@dipsegovia.es', 'csv-import', NULL),
+('susana@apfsc.es', 'csv-import', NULL),
+('yolanda.salguero@ulpgc.es', 'csv-import', NULL),
+('luisdalmau@dpteruel.es', 'csv-import', NULL),
+('carles@bell-lloc.cat', 'csv-import', NULL),
+('dgmoreno@rivasciudad.es', 'csv-import', NULL),
+('sergio.pombrol@dpz.es', 'csv-import', NULL),
+('toniserra@santantoni.net', 'csv-import', NULL),
+('pericas@felanitx.org', 'csv-import', NULL),
+('lorenzo.sanchez@valdepenas.es', 'csv-import', NULL),
+('idiaz@ayto-velilla.es', 'csv-import', NULL),
+('etinto@cunit.cat', 'csv-import', NULL),
+('jmmegino@soria.es', 'csv-import', NULL),
+('cforjan@ccontasgalicia.es', 'csv-import', NULL),
+('nvera@fraga.org', 'csv-import', NULL),
+('egirabent@llinarsdelvalles.cat', 'csv-import', NULL),
+('dgarcia@cortesaragon.es', 'csv-import', NULL),
+('secretariageneral2@gibraleon.com', 'csv-import', NULL),
+('mssgranada@gmail.com', 'csv-import', NULL),
+('mingles@zaragoza.es', 'csv-import', NULL),
+('jlopezs@zaragoza.es', 'csv-import', NULL),
+('acaballero@cabildodelanzarote.com', 'csv-import', NULL),
+('lvilapla@diputacionalicante.es', 'csv-import', NULL),
+('mbejarano@tomares.es', 'csv-import', NULL),
+('michaelrh@guiadeisora.org', 'csv-import', NULL),
+('jklarra@galdakao.net', 'csv-import', NULL),
+('alfonso.pelaez@aytoalmonte.es', 'csv-import', NULL),
+('davida.res@sarria.gal', 'csv-import', NULL),
+('elenamartin@arrecife.es', 'csv-import', NULL),
+('aleronda@gmail.com', 'csv-import', NULL),
+('egonzalez@puertollano.es', 'csv-import', NULL),
+('informatica@gibraleon.com', 'csv-import', NULL),
+('informatica@aytogines.es', 'csv-import', NULL),
+('informatica@buenavistadelnorte.es', 'csv-import', NULL),
+('jmuro@zaragoza.es', 'csv-import', NULL),
+('alberto.farre@gmail.com', 'csv-import', NULL),
+('rtornos@zaragoza.es', 'csv-import', NULL),
+('claudio@almoradi.es', 'csv-import', NULL),
+('ruizrr@sentmenat.cat', 'csv-import', NULL),
+('jose.gabriel.piera@gmail.com', 'csv-import', NULL),
+('jesusgarciasanzsm@gmail.com', 'csv-import', NULL),
+('jmtoledo@yahoo.com', 'csv-import', NULL),
+('izamora@rivasciudad.es', 'csv-import', NULL),
+('juan.jimeno@valdepenas.es', 'csv-import', NULL),
+('antonioase@gmail.com', 'csv-import', NULL),
+('ibanbermudez@cabildodelanzarote.com', 'csv-import', NULL),
+('tomas.avila@ayamonte.es', 'csv-import', NULL),
+('archivo@santjoandalacant.es', 'csv-import', NULL),
+('agonzalez@lepe.es', 'csv-import', NULL),
+('manuelcabelloruiz1@gmail.com', 'csv-import', NULL),
+('veronica.garcia@ayto-salobrena.es', 'csv-import', NULL),
+('joaquin.valls@borriol.es', 'csv-import', NULL),
+('ricardobernal@ayto-camas.org', 'csv-import', NULL),
+('carles.ribera@lesfranqueses.cat', 'csv-import', NULL),
+('gchiner@lanucia.es', 'csv-import', NULL),
+('ematu@benicassim.org', 'csv-import', NULL),
+('gilgutierrezirene@gmail.com', 'csv-import', NULL),
+('carlos.beltran@burriana.es', 'csv-import', NULL),
+('jose.sanlorenzo@nules.es', 'csv-import', NULL),
+('smanzano@alcora.org', 'csv-import', NULL),
+('amanda.hormigo@eivissa.es', 'csv-import', NULL),
+('rafaortega@costatropical.es', 'csv-import', NULL),
+('jalfonso@sumagrup.com', 'csv-import', NULL),
+('cmayol@sapobla.cat', 'csv-import', NULL),
+('dleon@guimar.es', 'csv-import', NULL),
+('miguel@ayuntamientodealfacar.es', 'csv-import', NULL),
+('ccalcaterra@apmotril.com', 'csv-import', NULL),
+('ramon@ayto-sanfulgencio.es', 'csv-import', NULL),
+('mutrilla@soria.es', 'csv-import', NULL),
+('clopes@moia.cat', 'csv-import', NULL),
+('gonzalez.al77@gmail.com', 'csv-import', NULL),
+('mmateo@islacristina.org', 'csv-import', NULL),
+('archivo@mancolacanal.es', 'csv-import', NULL),
+('lvidal@castello2000.cat', 'csv-import', NULL),
+('marta@castello2000.cat', 'csv-import', NULL),
+('gverdu@petrer.es', 'csv-import', NULL),
+('eaguilar@petrer.es', 'csv-import', NULL),
+('anamarina.lazaro@castello.es', 'csv-import', NULL),
+('carrysoft@gmail.com', 'csv-import', NULL),
+('informatica@lapalmadelcondado.org', 'csv-import', NULL),
+('aldoduranacc@gmail.com', 'csv-import', NULL),
+('fcampos@puertogijon.es', 'csv-import', NULL),
+('driutord@alcudia.net', 'csv-import', NULL),
+('erincon@alcudia.net', 'csv-import', NULL),
+('informatica@vegasdelgenil.es', 'csv-import', NULL),
+('gpenaquil@yahoo.es', 'csv-import', NULL),
+('juanb@alfafar.es', 'csv-import', NULL),
+('lmarti@puigcerda.cat', 'csv-import', NULL),
+('pedro.jara@lastorresdecotillas.es', 'csv-import', NULL),
+('albertobravoqueipodellano@hotmail.com', 'csv-import', NULL),
+('informatica@ogijares.org', 'csv-import', NULL),
+('lchacon@puertocadiz.com', 'csv-import', NULL),
+('elisabet.rodriguez@ulpgc.es', 'csv-import', NULL),
+('mpazadmon@ayto-villalbilla.org', 'csv-import', NULL),
+('informatica@alhendin.es', 'csv-import', NULL),
+('sprat@ccsegarra.cat', 'csv-import', NULL),
+('jgarciam@dipsegovia.es', 'csv-import', NULL),
+('oficinatecnica@consorciodolouro.es', 'csv-import', NULL),
+('acadenas@movistar.es', 'csv-import', NULL),
+('cmartinez@santjaumedelsdomenys.cat', 'csv-import', NULL),
+('informatica@oporrino.org', 'csv-import', NULL),
+('ecrespo@sgise.es', 'csv-import', NULL),
+('iborrego@aytotudela.es', 'csv-import', NULL),
+('odile.leon.sosa@gmail.com', 'csv-import', NULL),
+('gloria.leon@puertoscanarios.es', 'csv-import', NULL),
+('fatima@dtinformatica.info', 'csv-import', NULL),
+('javi.soro@gmail.com', 'csv-import', NULL),
+('cmones@vinaros.es', 'csv-import', NULL),
+('mdrodriguez@puertogijon.es', 'csv-import', NULL),
+('jvoller@teuladamoraira.org', 'csv-import', NULL),
+('mtlabrador@dipsegovia.es', 'csv-import', NULL),
+('marta.ferreira@ccuentas.es', 'csv-import', NULL),
+('mmiguelg@aytoguadalajara.es', 'csv-import', NULL),
+('lola.ramirez@alcalalareal.es', 'csv-import', NULL),
+('marcos.colmenero@villarrubiadelosojos.es', 'csv-import', NULL),
+('intervencion@ayunzuera.com', 'csv-import', NULL),
+('secretaria@ayunzuera.com', 'csv-import', NULL),
+('franciscogh@guiadeisora.org', 'csv-import', NULL),
+('josemaria.gomezmartinez@elpuertodesantamaria.es', 'csv-import', NULL),
+('miguelangel.navarrosantamaria@elpuertodesantamaria.es', 'csv-import', NULL),
+('ricardo.malo@gmail.com', 'csv-import', NULL),
+('rovira_emi@gva.es', 'csv-import', NULL),
+('maytera3@gmail.com', 'csv-import', NULL),
+('rrivilla@sgise.es', 'csv-import', NULL),
+('mzaera@torrent.es', 'csv-import', NULL),
+('patriciarosario.soriamartindelavega@elpuertodesantamaria.es', 'csv-import', NULL),
+('nuria.martinez@valdepenas.es', 'csv-import', NULL),
+('screspo@lasrozas.es', 'csv-import', NULL),
+('josegutierrez@maracena.es', 'csv-import', NULL),
+('esperanza.torres@eivissa.es', 'csv-import', NULL),
+('pere.llofriu@emt.palma.cat', 'csv-import', NULL),
+('informaticaweb@aytorota.es', 'csv-import', NULL),
+('mariaj.garcia@ayto-alcantarilla.es', 'csv-import', NULL),
+('fgarciacascales@ayto-alcantarilla.es', 'csv-import', NULL),
+('javier.fabelloruiz@elpuertodesantamaria.es', 'csv-import', NULL),
+('ymaldonado@apmotril.com', 'csv-import', NULL),
+('bonets@torrent.es', 'csv-import', NULL),
+('informatica@aytocuellar.es', 'csv-import', NULL),
+('jorgeivars@gmail.com', 'csv-import', NULL),
+('informatica@aytoconsuegra.es', 'csv-import', NULL),
+('jdiazgh@gmail.com', 'csv-import', NULL),
+('mjjimenez@lasrozas.es', 'csv-import', NULL),
+('ebenito@urbanismolalaguna.es', 'csv-import', NULL),
+('dhernandez@urbanismolalaguna.es', 'csv-import', NULL),
+('a.sobrin@ciuden.es', 'csv-import', NULL),
+('j.lopez@ciuden.es', 'csv-import', NULL),
+('albertorosells@gmail.com', 'csv-import', NULL),
+('rafaelcintrano@estepona.es', 'csv-import', NULL),
+('ferran.ros@carcaixent.es', 'csv-import', NULL),
+('mateu.huerta@felanitx.org', 'csv-import', NULL),
+('mtcuesta@lasrozas.es', 'csv-import', NULL),
+('djarque@gmail.com', 'csv-import', NULL),
+('mparicio@dipcas.es', 'csv-import', NULL),
+('javier.tornador@nules.es', 'csv-import', NULL),
+('lozanoda@canovesisamalus.cat', 'csv-import', NULL),
+('fran.santos@ayto-torremolinos.es', 'csv-import', NULL),
+('palmiralimia@ayto-camas.org', 'csv-import', NULL),
+('cg86_sev@hotmail.com', 'csv-import', NULL),
+('mjimeneg@diputacionalicante.es', 'csv-import', NULL),
+('informatica4@santapola.es', 'csv-import', NULL),
+('luis.rosello@carlet.es', 'csv-import', NULL),
+('secretaria-gloria@ayto-torrelodones.org', 'csv-import', NULL),
+('alopezci@vicar.es', 'csv-import', NULL),
+('crosa@gsccanarias.com', 'csv-import', NULL),
+('jrobaina@gmail.com', 'csv-import', NULL),
+('gromero@amorebieta.eus', 'csv-import', NULL),
+('mcuesta@noain.es', 'csv-import', NULL),
+('ramon.martinez@colmenardeoreja.com', 'csv-import', NULL),
+('david.martinez@colmenardeoreja.com', 'csv-import', NULL),
+('jsauragargallo@gmail.com', 'csv-import', NULL),
+('alonso_ana@hotmail.com', 'csv-import', NULL),
+('pcabrera@tinajo.es', 'csv-import', NULL),
+('mdelucas@diputacionalicante.es', 'csv-import', NULL),
+('juanguga@gmail.com', 'csv-import', NULL),
+('jmartinez@adlsantapola.es', 'csv-import', NULL),
+('jperezma@vicar.es', 'csv-import', NULL),
+('guzman.tortosa@gmail.com', 'csv-import', NULL),
+('gtur@calp.es', 'csv-import', NULL),
+('jaabadmi@ayuntamientoviator.org', 'csv-import', NULL),
+('bernimanza@alhaurinelgrande.es', 'csv-import', NULL),
+('carol.ciordia@gmail.com', 'csv-import', NULL),
+('earnabat@bellvei.cat', 'csv-import', NULL),
+('mquesada@constanti.cat', 'csv-import', NULL),
+('tributos@alhaurinelgrande.net', 'csv-import', NULL),
+('colladoga@badiadelvalles.net', 'csv-import', NULL),
+('e.aguilar@antifraudeandalucia.es', 'csv-import', NULL),
+('rramal@santjaume.cat', 'csv-import', NULL),
+('david.gonzalez.arq@gmail.com', 'csv-import', NULL),
+('ester_46_97@hotmail.com', 'csv-import', NULL),
+('estherzgz322@hotmail.com', 'csv-import', NULL),
+('jaballesteros@dipujaen.es', 'csv-import', NULL),
+('mamunoz@dipujaen.es', 'csv-import', NULL),
+('aznarmf@arenysdemar.cat', 'csv-import', NULL),
+('ilarroya@constanti.cat', 'csv-import', NULL),
+('alcas@sumagrup.com', 'csv-import', NULL),
+('informatica@ayto-launion.org', 'csv-import', NULL),
+('rmacia@diputacionalicante.es', 'csv-import', NULL),
+('ammcarlet@gmail.com', 'csv-import', NULL),
+('csuarez@energiagrancanaria.com', 'csv-import', NULL),
+('alozano@energiagrancanaria.com', 'csv-import', NULL),
+('anaisabel.gonzalez@dipujaen.es', 'csv-import', NULL),
+('lucia.lucas@dipujaen.es', 'csv-import', NULL),
+('secretariageneral@canetdenberenguer.es', 'csv-import', NULL),
+('aleoreg@gesplan.es', 'csv-import', NULL),
+('secretaria@aytochella.com', 'csv-import', NULL),
+('marivigranero@gmail.com', 'csv-import', NULL),
+('s.tejeraremax@gmail.com', 'csv-import', NULL),
+('eutilopez@martorell.cat', 'csv-import', NULL),
+('pedro.cpd@marbella.es', 'csv-import', NULL),
+('danielnagore@marbella.es', 'csv-import', NULL),
+('reinoso@adra.es', 'csv-import', NULL),
+('administracion2@energiagrancanaria.com', 'csv-import', NULL),
+('iberna@diputacionalicante.es', 'csv-import', NULL),
+('gmerida@elhierro.es', 'csv-import', NULL),
+('juanma.vinuesa@alcaladexivert.es', 'csv-import', NULL),
+('amorillo@dipujaen.es', 'csv-import', NULL),
+('mabaco@dipujaen.es', 'csv-import', NULL),
+('alicia.castellet@cabanes.es', 'csv-import', NULL),
+('informatica@villacarrillo.es', 'csv-import', NULL),
+('jam.informatico@almendralejo.es', 'csv-import', NULL),
+('rafael.flores@almendralejo.es', 'csv-import', NULL),
+('cga.ofo@almendralejo.es', 'csv-import', NULL),
+('jperea@betera.es', 'csv-import', NULL),
+('mvazquez@vera.es', 'csv-import', NULL),
+('fflores@interior.es', 'csv-import', NULL),
+('mbarragan@interior.es', 'csv-import', NULL),
+('ibl.secretaria@almendralejo.es', 'csv-import', NULL),
+('anacasablanca@almendralejo.es', 'csv-import', NULL),
+('alejandroruizizquierdo@gmail.com', 'csv-import', NULL),
+('jesus.martinez@parets.cat', 'csv-import', NULL),
+('mavi6972@hotmail.com', 'csv-import', NULL),
+('adelgado@camaratenerife.es', 'csv-import', NULL),
+('secretaria@guadarrama.es', 'csv-import', NULL),
+('recaudacion3@guadarrama.es', 'csv-import', NULL),
+('jesus.romero@aytoalmonte.es', 'csv-import', NULL),
+('esegura@marbella.es', 'csv-import', NULL),
+('luispartida@marbella.es', 'csv-import', NULL),
+('dsacristan@dipsegovia.es', 'csv-import', NULL),
+('agarcia@dipsegovia.es', 'csv-import', NULL),
+('sergio.hidalgo@aytolarinconada.es', 'csv-import', NULL),
+('oscarferrando@alaquas.org', 'csv-import', NULL),
+('informatica3@morondelafrontera.es', 'csv-import', NULL),
+('informatica2@morondelafrontera.es', 'csv-import', NULL),
+('sebastiaramis31@gmail.com', 'csv-import', NULL),
+('aferreras@dipsegovia.es', 'csv-import', NULL),
+('jsanz@dipsegovia.es', 'csv-import', NULL),
+('aodl@alcarras.cat', 'csv-import', NULL),
+('bfromage@santjaume.cat', 'csv-import', NULL),
+('olga.ibanez@palamos.cat', 'csv-import', NULL),
+('rconde@udalermua.net', 'csv-import', NULL),
+('mgutierrez@udalermua.net', 'csv-import', NULL),
+('pedro.martin@alcaudete.es', 'csv-import', NULL),
+('informatica@bocema.org', 'csv-import', NULL),
+('aforcadell@alcanar.cat', 'csv-import', NULL),
+('mvillar@bilbaoport.eus', 'csv-import', NULL),
+('informatica@valdejalon.es', 'csv-import', NULL),
+('cargente@aytoalgete.com', 'csv-import', NULL),
+('arroyo.schnell@gmail.com', 'csv-import', NULL),
+('informatica@ayto-socuellamos.es', 'csv-import', NULL),
+('ibernal@zaragoza.es', 'csv-import', NULL),
+('morales.gj@gmail.com', 'csv-import', NULL),
+('web@mariadehuerva.net', 'csv-import', NULL),
+('smartinez@nostraigua.cat', 'csv-import', NULL),
+('vmartinez2791@gmail.com', 'csv-import', NULL),
+('tecnico@crargos.org', 'csv-import', NULL),
+('storrell@ginestar.cat', 'csv-import', NULL),
+('informatica@caspe.es', 'csv-import', NULL),
+('urbanismobormujos@gmail.com', 'csv-import', NULL),
+('mpalominopadilla@hotmail.com', 'csv-import', NULL),
+('aarostegui@bilbaoport.eus', 'csv-import', NULL),
+('jose.villaescusa@nules.es', 'csv-import', NULL),
+('alfonso.dominguez@lagunadeduero.org', 'csv-import', NULL),
+('rubenanido@concellodemonforte.com', 'csv-import', NULL),
+('soterasbm@ajpiera.cat', 'csv-import', NULL),
+('vilamajobe@ajpiera.cat', 'csv-import', NULL),
+('padronhabitantes@villamurieldecerrato.es', 'csv-import', NULL),
+('administraciongeneral@villamurieldecerrato.es', 'csv-import', NULL),
+('enriquecarlosbc@gmail.com', 'csv-import', NULL),
+('programacion@nijar.es', 'csv-import', NULL),
+('jrcerced@dpz.es', 'csv-import', NULL),
+('aimorao@orihuela.es', 'csv-import', NULL),
+('elena.fernandez@bilbaoport.eus', 'csv-import', NULL),
+('sleon@bilbaoport.eus', 'csv-import', NULL),
+('alberto.manzanedo@zalla.eus', 'csv-import', NULL),
+('amassot@andratx.es', 'csv-import', NULL),
+('informatica.tecnico@algeciras.es', 'csv-import', NULL),
+('victormorales@algeciras.es', 'csv-import', NULL),
+('borjalp.sg@gmail.com', 'csv-import', NULL),
+('psanchez@mairenadelalcor.es', 'csv-import', NULL),
+('jromero@mairenadelalcor.es', 'csv-import', NULL),
+('smauri@mairenadelalcor.es', 'csv-import', NULL),
+('emilio.delrio@puertoreal.es', 'csv-import', NULL),
+('jsantamaria@amorebieta.eus', 'csv-import', NULL),
+('aballester@orihuela.es', 'csv-import', NULL),
+('xoan.gomez@tomino.gal', 'csv-import', NULL),
+('jvalencia@arrigorriaga.eus', 'csv-import', NULL),
+('valmenar@canetdenberenguer.es', 'csv-import', NULL),
+('fernando.peiro@gandia.org', 'csv-import', NULL),
+('18laura.vizcaino@gmail.com', 'csv-import', NULL),
+('andrea92zgz@gmail.com', 'csv-import', NULL),
+('jlsaez@cofrm.com', 'csv-import', NULL),
+('humberamo@gmail.com', 'csv-import', NULL),
+('elopez@villardelarzobispo.es', 'csv-import', NULL),
+('avalenzu@aytomengibar.com', 'csv-import', NULL),
+('jceacero@aytomengibar.com', 'csv-import', NULL),
+('chary.zorrero@gmail.com', 'csv-import', NULL),
+('palma.fernandez@mairenadelaljarafe.org', 'csv-import', NULL),
+('lola.gandarias@mairenadelaljarafe.org', 'csv-import', NULL),
+('leondevalladares@gmail.com', 'csv-import', NULL),
+('payueta@tvcp.eus', 'csv-import', NULL),
+('jmcabrera@grancanariadeportes.com', 'csv-import', NULL),
+('secretario@aguilardecampoo.es', 'csv-import', NULL),
+('ruben.pascual@marbella.es', 'csv-import', NULL),
+('arannart@vielha-mijaran.org', 'csv-import', NULL),
+('informatica@ponteareas.gal', 'csv-import', NULL),
+('mmperez@guimar.es', 'csv-import', NULL),
+('rocio.serrano@mairenadelaljarafe.org', 'csv-import', NULL),
+('carlos.alvarez@mairenadelaljarafe.org', 'csv-import', NULL),
+('laura.garcia@mairenadelaljarafe.org', 'csv-import', NULL),
+('csorias@zaragoza.es', 'csv-import', NULL),
+('alicia@tvcp.eus', 'csv-import', NULL),
+('ibilbao@getxo.eus', 'csv-import', NULL),
+('tolobaleal@yahoo.es', 'csv-import', NULL),
+('mfrancocasado@gmail.com', 'csv-import', NULL),
+('canalperezsofia@gmail.com', 'csv-import', NULL),
+('jacarrasco@dipujaen.es', 'csv-import', NULL),
+('adri.cuo@gmail.com', 'csv-import', NULL),
+('jairourbanonieto@gmail.com', 'csv-import', NULL),
+('tic@ribadedeva.es', 'csv-import', NULL),
+('david.albiach@puertoreal.es', 'csv-import', NULL),
+('dani.fuste@urgell.cat', 'csv-import', NULL),
+('maluz.esteban@zamora.es', 'csv-import', NULL),
+('ffernandez@vandellos-hospitalet.cat', 'csv-import', NULL),
+('anama@adeje.es', 'csv-import', NULL),
+('andreamg@adeje.es', 'csv-import', NULL),
+('juanvan@aguasgrancanaria.com', 'csv-import', NULL),
+('carmelo.santana@aguasgrancanaria.com', 'csv-import', NULL),
+('joaquin.tribaldos@fecyt.es', 'csv-import', NULL),
+('fernando.santamaria@fecyt.es', 'csv-import', NULL),
+('oscar.ramos@fecyt.es', 'csv-import', NULL),
+('maurifll@argentona.cat', 'csv-import', NULL),
+('msubirats@altafulla.cat', 'csv-import', NULL),
+('informatica@ayora.es', 'csv-import', NULL),
+('tesoreria@aguilardecampoo.es', 'csv-import', NULL),
+('intervencion@aguilardecampoo.es', 'csv-import', NULL),
+('mpaz.garcia@ayto-daganzo.org', 'csv-import', NULL),
+('aesteban@derio.eus', 'csv-import', NULL),
+('francisco.diaz@hospitalprovincial.es', 'csv-import', NULL),
+('raul.jimenez@hospitalprovincial.es', 'csv-import', NULL),
+('aduarte@mijas.es', 'csv-import', NULL),
+('rmuniz@mijas.es', 'csv-import', NULL),
+('tcliment@finestrat.org', 'csv-import', NULL),
+('administrador@pinos-puente.org', 'csv-import', NULL),
+('mc.garcia@acosol.es', 'csv-import', NULL),
+('pablo.la@live.com', 'csv-import', NULL),
+('mikel@acoa-ake.org', 'csv-import', NULL),
+('rodriguezmja@elpra.cat', 'csv-import', NULL),
+('gsoll@aytoguadalajara.es', 'csv-import', NULL),
+('iliron@aytoguadalajara.es', 'csv-import', NULL),
+('tmartina@aytoguadalajara.es', 'csv-import', NULL),
+('cllorca@finestrat.org', 'csv-import', NULL),
+('informatica@lapobladefarnals.es', 'csv-import', NULL),
+('secretaria@lapobladefarnals.es', 'csv-import', NULL),
+('arxiu@lesfranqueses.cat', 'csv-import', NULL),
+('secretaria.general@campillos.es', 'csv-import', NULL),
+('diegogallardoramirez@gmail.com', 'csv-import', NULL),
+('llobregatfa@diba.cat', 'csv-import', NULL),
+('laura.as@guillena.org', 'csv-import', NULL),
+('jvalseca@gmail.com', 'csv-import', NULL),
+('lnavarro@cunit.cat', 'csv-import', NULL),
+('xribas@santacristina.cat', 'csv-import', NULL),
+('sdurantez@cunit.cat', 'csv-import', NULL),
+('perezdr@elprat.cat', 'csv-import', NULL),
+('serracj@abrera.cat', 'csv-import', NULL),
+('claudiahernandez@consorcidemuseus.es', 'csv-import', NULL),
+('rosariocampos@consorcidemuseus.es', 'csv-import', NULL),
+('sabat@elprat.cat', 'csv-import', NULL),
+('asala@begur.cat', 'csv-import', NULL),
+('alonsroca@hotmail.com', 'csv-import', NULL),
+('bilbeny@elprat.cat', 'csv-import', NULL),
+('antoniovazqueztristan@laalgaba.es', 'csv-import', NULL),
+('nadalsf@calaf.cat', 'csv-import', NULL),
+('carlos.medina@plocan.eu', 'csv-import', NULL),
+('alfredo.sosa@plocan.eu', 'csv-import', NULL),
+('dep.informatica@albatera.org', 'csv-import', NULL),
+('evam.almela@lastorresdecotillas.es', 'csv-import', NULL),
+('perezsd@elprat.cat', 'csv-import', NULL),
+('macapo@alcudia.net', 'csv-import', NULL),
+('ivan.informatica@gandia.org', 'csv-import', NULL),
+('javier.tur@eivissa.es', 'csv-import', NULL),
+('antoniopuertas@estepona.es', 'csv-import', NULL),
+('scleon@jodar.es', 'csv-import', NULL),
+('bteran@getxo.eus', 'csv-import', NULL),
+('mcarmen.perezserrano@valdepenas.es', 'csv-import', NULL),
+('ana.castillo@castello.es', 'csv-import', NULL),
+('amonerris@adlsantapola.es', 'csv-import', NULL),
+('tmunoz@ccbergueda.cat', 'csv-import', NULL),
+('sergio.ayala@eivissa.es', 'csv-import', NULL),
+('jgonzacr@vicar.es', 'csv-import', NULL),
+('orestes_montero@hotmail.com', 'csv-import', NULL),
+('secretaria-esther@ayto-torrelodones.org', 'csv-import', NULL),
+('apujals@vila-seca.cat', 'csv-import', NULL),
+('personal.fsoler@torrevieja.eu', 'csv-import', NULL),
+('m.garcia@antifraudeandalucia.es', 'csv-import', NULL),
+('pamela.munoz@puertollano.es', 'csv-import', NULL),
+('luis.acevedo@diaple.com', 'csv-import', NULL),
+('mruiz@puertollano.es', 'csv-import', NULL),
+('josemiguel.garcia@castello.es', 'csv-import', NULL),
+('ibilbao@amorebieta.eus', 'csv-import', NULL),
+('jmserna@espublico.com', 'csv-import', NULL),
+('jlgarcia@espublico.com', 'csv-import', NULL),
+('albert.lopez@ecityclic.com', 'csv-import', NULL),
+('jdelaguardia@espublico.com', 'csv-import', NULL),
+('mvazquez@espublico.com', 'csv-import', NULL),
+('racande@gmail.com', 'csv-import', NULL),
+('csanchez@espublico.com', 'csv-import', NULL),
+('abeltran@espublico.com', 'csv-import', NULL),
+('ainfantes@espublico.com', 'csv-import', NULL),
+('aquintero@espublico.com', 'csv-import', NULL),
+('xpacheco@ecityclic.com', 'csv-import', NULL),
+('mgonzalez@espublico.com', 'csv-import', NULL),
+('bcaparros@espublico.com', 'csv-import', NULL),
+('vborobia@espublico.com', 'csv-import', NULL),
+('ambernal@espublico.com', 'csv-import', NULL),
+('vcontreras@espublico.com', 'csv-import', NULL),
+('jmestres@espublico.com', 'csv-import', NULL),
+('jageraldes@espublico.com', 'csv-import', NULL),
+('oruiz@ecityclic.com', 'csv-import', NULL),
+('rpenalver@espublico.com', 'csv-import', NULL),
+('certificaciongestiona@espublico.com', 'csv-import', NULL),
+('ppuertolas@espublico.com', 'csv-import', NULL),
+('mbaeta@espublico.com', 'csv-import', NULL),
+('edieguez@espublico.com', 'csv-import', NULL),
+('lmartinez@espublico.com', 'csv-import', NULL),
+('mllorente@espublico.com', 'csv-import', NULL),
+('jgarciaaraez@espublico.com', 'csv-import', NULL),
+('pmartinez@espublico.com', 'csv-import', NULL),
+('mgalvez@espublico.com', 'csv-import', NULL),
+('rmestre@espublico.com', 'csv-import', NULL),
+('jmjuan@espublico.com', 'csv-import', NULL),
+('eserrano@espublico.com', 'csv-import', NULL),
+('cpenalver@espublico.com', 'csv-import', NULL),
+('lalvarez@espublico.com', 'csv-import', NULL),
+('lgalan@espublico.com', 'csv-import', NULL),
+('fpalacio@espublico.it', 'csv-import', NULL),
+('malarraga@espublico.com', 'csv-import', NULL),
+('jgracia@espublico.com', 'csv-import', NULL),
+('cgimeno@espublico.com', 'csv-import', NULL),
+('jfont@ecityclic.com', 'csv-import', NULL),
+('aquintano@espublico.com', 'csv-import', NULL),
+('sberce@espublico.com', 'csv-import', NULL),
+('mehernandez@espublico.com', 'csv-import', NULL),
+('aiglesias@ecityclic.com', 'csv-import', NULL),
+('lzamora@espublico.com', 'csv-import', NULL),
+('mfernandez@espublico.com', 'csv-import', NULL),
+('pedrojmartincano@gmail.com', 'csv-import', NULL),
+('rmalo@zaragozadinamica.es', 'csv-import', NULL),
+('mariavc920@gmail.com', 'csv-import', NULL),
+('miguel.moline@gmail.com', 'csv-import', NULL),
+('pedro-jara@lastorresdecotillas.es', 'csv-import', NULL),
+('etorresferrer@gmail.com', 'csv-import', NULL),
+('vmartinez@nostraigua.cat', 'csv-import', NULL),
+('faznar79@gmail.com', 'csv-import', NULL),
+('secretaria@aytochella.es', 'csv-import', NULL),
+('secretaria@navarres.es', 'csv-import', NULL),
+('jlsaez@jlsaez.es', 'csv-import', NULL),
+('mfernandez@aytogines.es', 'csv-import', NULL),
+('amunoz@aytogines.es', 'csv-import', NULL),
+('dgalindo@amsystem.es', 'csv-import', NULL),
+('roc.villarreal@gmail.com', 'csv-import', NULL),
+('jijo523@gmail.com', 'csv-import', NULL),
+('administracion@aytoperalta.com', 'csv-import', NULL),
+('francisco.soler.ramirez@gmail.com', 'csv-import', NULL),
+('secretario@aytoescorial.org', 'csv-import', NULL),
+('ngomez@ccbergueda.cat', 'csv-import', NULL),
+('zaeraf@torrent.es', 'csv-import', NULL),
+('gmanasux@vera.es', 'csv-import', NULL),
+('joaquin.tribados@fecyt.es', 'csv-import', NULL),
+('juanvb01@gmail.com', 'csv-import', NULL),
+('jklarra@galdakao.eus', 'csv-import', NULL),
+('carmenteresagonzalez@guiadeisora.org', 'csv-import', NULL),
+('encarna@alfafar.es', 'csv-import', NULL),
+('dmarquinez@cunit.cat', 'csv-import', NULL),
+('sdursantez@cunit.cat', 'csv-import', NULL);
+
+-- =====================================================
+-- 5. LIMPIAR EMAILS (Eliminar espacios y saltos de línea)
+-- =====================================================
+
+-- Limpiar todos los emails de espacios, saltos de línea, tabs, etc.
+UPDATE authorized_emails
+SET email = REGEXP_REPLACE(email, E'[\\n\\r\\t\\s]+', '', 'g');
+
+-- Verificar que no hay emails con espacios extras
+DO $$
+DECLARE
+    emails_con_espacios INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO emails_con_espacios
+    FROM authorized_emails
+    WHERE email != TRIM(email) OR email LIKE '% %';
+
+    IF emails_con_espacios > 0 THEN
+        RAISE WARNING 'Atención: Hay % emails con espacios o caracteres extraños', emails_con_espacios;
+    ELSE
+        RAISE NOTICE '✓ Todos los emails están limpios (sin espacios ni saltos de línea)';
+    END IF;
+END $$;
+
+-- =====================================================
+-- 6. VERIFICACIÓN
+-- =====================================================
+
+-- Verificar que se insertaron correctamente
+DO $$
+DECLARE
+    email_count INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO email_count FROM authorized_emails;
+
+    IF email_count != 489 THEN
+        RAISE EXCEPTION 'Error: Se esperaban 489 emails, pero hay %', email_count;
+    END IF;
+    
+    RAISE NOTICE '✓ Migración completada exitosamente';
+    RAISE NOTICE '✓ % emails autorizados insertados', email_count;
+    RAISE NOTICE '✓ Tabla authorized_emails creada con RLS habilitado';
+    RAISE NOTICE '✓ Función is_email_authorized() disponible';
+END $$;
+
+COMMIT;

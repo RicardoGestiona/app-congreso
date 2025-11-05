@@ -20,11 +20,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Critical Files
 ```
-index.html                    # Main SPA - all UI, CSS, and JS in one file
-congress_app_schema.sql       # Complete database schema
-poster_voting_schema.sql      # Poster voting system schema
-security_fixes.sql            # RLS policies and security hardening
-verify_security.sql           # Security audit script
+index.html                          # Main SPA - all UI, CSS, and JS in one file
+congress_app_schema.sql             # Complete database schema
+poster_voting_schema.sql            # Poster voting system schema
+email_validation_migration.sql      # Email-based vote validation (v1.2.0)
+security_fixes.sql                  # RLS policies and security hardening
+verify_security.sql                 # Security audit script
+EMAIL_VALIDATION_IMPLEMENTATION.md  # Vote validation documentation
 ```
 
 ### Database Configuration
@@ -116,8 +118,8 @@ The project has MCP servers configured for enhanced capabilities:
 - Functions: `submitVotes()`, `loadVotingResults()` - search in index.html
 
 ### 5. Poster Voting System
-- Maximum 3 votes per user/device
-- Device fingerprinting for anonymous voting prevention
+- Maximum 4 votes per user (validated by registered email)
+- Email-based validation prevents duplicate voting across devices
 - Gallery with thumbnail cards + full-image modal
 - Winner badge positioned in top-right corner (floating, not inline)
 - Results screen: `?poster-results` or `#poster-results`
@@ -197,10 +199,15 @@ Global objects for each feature:
 - No framework - pure vanilla JS state management
 
 ### Security Model
-- **Current:** Anonymous access with RLS policies (temporary)
+- **Current:** Anonymous access with RLS policies + email validation (v1.2.0)
 - **Future:** Full Supabase Auth with authenticated users
-- Device fingerprinting prevents duplicate anonymous votes
-- Triggers validate vote limits at database level
+- **Email-based vote validation (NEW - 2025-11-04):** Votes are tied to registered email address
+  - One email = one set of votes (independent of device used)
+  - Database constraints: `UNIQUE (user_email, voting_topic_id)` and `UNIQUE (user_email, poster_id)`
+  - Prevents multi-device voting with same email
+  - See `EMAIL_VALIDATION_IMPLEMENTATION.md` for full details
+- Device fingerprinting maintained as secondary identifier (backward compatibility)
+- Triggers validate vote limits at database level (e.g., max 4 poster votes per email)
 - All functions use `SET search_path = public` to prevent schema poisoning
 - All views use `security_invoker = true` to prevent privilege escalation
 
@@ -322,7 +329,7 @@ Expected: 0 errors, 0 warnings, 0 suggestions
 
 5. **RLS is critical**: Any database changes MUST include RLS policies. Run `verify_security.sql` after schema changes.
 
-6. **Device fingerprinting**: Used for anonymous voting. Generated from browser characteristics and stored in localStorage.
+6. **Email-based vote validation (v1.2.0)**: Votes are tied to the registered email address from welcome screen. Each email can vote once per topic/poster, regardless of device. Device fingerprinting is maintained as secondary data but not used for primary validation.
 
 7. **Dual storage pattern**: Most features save to Supabase first, fall back to localStorage on error. This is intentional for offline resilience.
 
@@ -350,11 +357,20 @@ Expected: 0 errors, 0 warnings, 0 suggestions
 
 ## Last Updated
 
-**Date:** 2025-11-03
+**Date:** 2025-11-04
 **Version:** 1.2.0-beta
 **Security Status:** Supabase Security Advisor - 100% Clean (0 errors, 0 warnings)
 
-**Latest Changes (2025-11-03):**
+**Latest Changes (2025-11-04):**
+- **SECURITY:** Implemented email-based vote validation to prevent duplicate voting
+  - Votes now tied to registered email instead of device fingerprint
+  - Database schema updated with `user_email` columns and unique constraints
+  - JavaScript voting functions modified to validate and send email
+  - Maximum 4 poster votes and 1 vote per talk topic per email address
+  - See `EMAIL_VALIDATION_IMPLEMENTATION.md` for complete documentation
+- Migration script: `email_validation_migration.sql`
+
+**Previous Changes (2025-11-03):**
 - Added winner announcement pages for posters and talks
 - Implemented turquoise color scheme for consistency
 - Created public URLs: `?poster-ganador` and `?ponencia-ganador`
