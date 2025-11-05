@@ -6519,7 +6519,19 @@
         function renderPosterResults(results) {
             const container = document.getElementById('poster-results-container');
 
+            // Caso 1: No hay resultados en absoluto
             if (!results || results.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: #999;">
+                        <p style="font-size: 18px;">Aún no hay votos registrados.</p>
+                    </div>
+                `;
+                previousPosterResults = null;
+                return true; // Hubo cambios
+            }
+
+            // Caso 2: Hay posters pero todos tienen 0 votos (votación aún no iniciada)
+            if (results.every(r => r.total_votes === 0)) {
                 container.innerHTML = `
                     <div style="text-align: center; padding: 60px 20px; color: #999;">
                         <p style="font-size: 18px;">Aún no hay votos registrados.</p>
