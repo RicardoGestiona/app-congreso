@@ -263,6 +263,16 @@ Complex gradient system with:
 - Poster vote limit: Search for `maxVotes:` in `posterVotingState` object
 - Auto-refresh intervals: Search for `setInterval` - currently set to 120000ms (2 minutes)
 
+### Changing Voting Activation Date
+1. Search for `VOTING_ACTIVATION_DATE` in `index.html` (around line 3719)
+2. Update the date: `const VOTING_ACTIVATION_DATE = new Date('YYYY-MM-DDTHH:MM:SS');`
+3. Example: `new Date('2025-11-06T00:00:00')` for November 6, 2025 at midnight
+4. The system will automatically:
+   - Show locked buttons with badge until the date
+   - Display modal with countdown when users try to access
+   - Auto-unlock and refresh UI when date is reached
+5. To disable the lock completely, set a past date: `new Date('2020-01-01T00:00:00')`
+
 ### Updating Location Maps
 1. Locations are in `locations-screen` section
 2. Two subsections: `.locations-section` (Training Spaces and Important Locations)
@@ -357,11 +367,20 @@ Expected: 0 errors, 0 warnings, 0 suggestions
 
 ## Last Updated
 
-**Date:** 2025-11-04
-**Version:** 1.2.0-beta
+**Date:** 2025-11-05
+**Version:** 1.2.1-beta
 **Security Status:** Supabase Security Advisor - 100% Clean (0 errors, 0 warnings)
 
-**Latest Changes (2025-11-04):**
+**Latest Changes (2025-11-05):**
+- **FEATURE:** Sistema de bloqueo temporal de votaciones
+  - Votaciones bloqueadas hasta el 6 de noviembre de 2025 a las 00:00
+  - Botones de menú visibles pero con estilo "locked" (desaturados, sin hover)
+  - Badge visual "🔒 Disponible el 6 de nov." en esquina superior derecha
+  - Modal informativo al intentar acceder con cuenta regresiva
+  - Auto-activación cuando se alcanza la fecha configurada
+  - Configuración centralizada en `VOTING_ACTIVATION_DATE`
+
+**Previous Changes (2025-11-04):**
 - **SECURITY:** Implemented email-based vote validation to prevent duplicate voting
   - Votes now tied to registered email instead of device fingerprint
   - Database schema updated with `user_email` columns and unique constraints
