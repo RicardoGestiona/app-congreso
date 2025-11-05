@@ -6643,6 +6643,17 @@
                 }
 
                 const winner = results[0];
+
+                // Verificar que el ganador tenga al menos 1 voto
+                if (!winner || winner.total_votes === 0) {
+                    document.getElementById("poster-winner-container").innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px; color: #999;">
+                            <p style="font-size: 18px;">Aún no hay votos registrados.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
                 console.log('✅ Ganador de posters:', winner);
 
                 renderPosterWinner(winner);
