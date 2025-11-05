@@ -10,7 +10,58 @@
 BEGIN;
 
 -- =====================================================
--- 1. ELIMINAR VOTACIONES DE PONENCIAS
+-- 1. ELIMINAR TOPICS DE VOTACIÓN DE PRUEBA
+-- =====================================================
+
+-- Verificar cuántos topics existen
+DO $$
+DECLARE
+    topics_count INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO topics_count FROM voting_topics;
+    RAISE NOTICE '📊 Topics de votación encontrados: %', topics_count;
+END $$;
+
+-- Eliminar votos asociados a topics de prueba (inglés)
+DO $$
+DECLARE
+    votes_deleted INTEGER;
+BEGIN
+    DELETE FROM votes
+    WHERE voting_topic_id IN (
+        '61234567-89ab-cdef-0123-456789abcdef',  -- "Best Session Topic for Next Year"
+        '62234567-89ab-cdef-0123-456789abcdef'   -- "Preferred Session Format"
+    );
+
+    GET DIAGNOSTICS votes_deleted = ROW_COUNT;
+    IF votes_deleted > 0 THEN
+        RAISE NOTICE '✅ Eliminados % votos de topics de prueba', votes_deleted;
+    END IF;
+END $$;
+
+-- Eliminar topics de prueba
+DELETE FROM voting_topics
+WHERE id IN (
+    '61234567-89ab-cdef-0123-456789abcdef',  -- "Best Session Topic for Next Year"
+    '62234567-89ab-cdef-0123-456789abcdef'   -- "Preferred Session Format"
+);
+
+-- Verificar que quedaron solo 6 topics reales
+DO $$
+DECLARE
+    topics_count INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO topics_count FROM voting_topics;
+    IF topics_count = 6 THEN
+        RAISE NOTICE '✅ Topics de prueba eliminados. Quedan 6 ponencias reales';
+    ELSE
+        RAISE WARNING '⚠️ Se esperaban 6 topics, pero hay %', topics_count;
+    END IF;
+END $$;
+
+
+-- =====================================================
+-- 2. ELIMINAR VOTACIONES DE PONENCIAS RESTANTES
 -- =====================================================
 
 -- Verificar cuántas votaciones de ponencias existen
@@ -40,7 +91,7 @@ END $$;
 
 
 -- =====================================================
--- 2. ELIMINAR VOTACIONES DE PÓSTERS
+-- 3. ELIMINAR VOTACIONES DE PÓSTERS
 -- =====================================================
 
 -- Verificar cuántas votaciones de pósters existen
@@ -70,7 +121,7 @@ END $$;
 
 
 -- =====================================================
--- 3. ELIMINAR ETIQUETAS/TAGS DE PRUEBA
+-- 4. ELIMINAR ETIQUETAS/TAGS DE PRUEBA
 -- =====================================================
 
 -- Verificar cuántas etiquetas existen
@@ -100,15 +151,17 @@ END $$;
 
 
 -- =====================================================
--- 4. RESUMEN FINAL
+-- 5. RESUMEN FINAL
 -- =====================================================
 
 DO $$
 DECLARE
+    topics_count INTEGER;
     votes_count INTEGER;
     poster_votes_count INTEGER;
     tags_count INTEGER;
 BEGIN
+    SELECT COUNT(*) INTO topics_count FROM voting_topics;
     SELECT COUNT(*) INTO votes_count FROM votes;
     SELECT COUNT(*) INTO poster_votes_count FROM poster_votes;
     SELECT COUNT(*) INTO tags_count FROM tags;
@@ -116,16 +169,18 @@ BEGIN
     RAISE NOTICE '==========================================';
     RAISE NOTICE '         RESUMEN DE LIMPIEZA              ';
     RAISE NOTICE '==========================================';
+    RAISE NOTICE 'Topics de votación (debe ser 6): %', topics_count;
     RAISE NOTICE 'Votaciones de ponencias restantes: %', votes_count;
     RAISE NOTICE 'Votaciones de pósters restantes: %', poster_votes_count;
     RAISE NOTICE 'Etiquetas restantes: %', tags_count;
     RAISE NOTICE '==========================================';
 
-    IF votes_count = 0 AND poster_votes_count = 0 AND tags_count = 0 THEN
+    IF topics_count = 6 AND votes_count = 0 AND poster_votes_count = 0 AND tags_count = 0 THEN
         RAISE NOTICE '✅ LIMPIEZA COMPLETADA CON ÉXITO';
         RAISE NOTICE '✅ La base de datos está lista para el evento';
     ELSE
-        RAISE WARNING '⚠️ Algunos datos no se eliminaron completamente';
+        RAISE WARNING '⚠️ Verificar: Topics=%/6, Votos=%/0, Poster Votos=%/0, Tags=%/0',
+                      topics_count, votes_count, poster_votes_count, tags_count;
     END IF;
 END $$;
 
@@ -135,14 +190,18 @@ COMMIT;
 -- NOTAS IMPORTANTES
 -- =====================================================
 --
+-- Este script ELIMINA:
+-- - Topics de votación de prueba en inglés (2 topics)
+-- - Votaciones de ponencias de prueba
+-- - Votaciones de pósters de prueba
+-- - Etiquetas/tags de prueba
+--
 -- Este script NO elimina:
 -- - Asistentes registrados (tabla attendees)
--- - Topics de votación (tabla voting_topics)
+-- - Los 6 topics de votación reales (ponencias del concurso)
 -- - Pósters del concurso (tabla posters)
 -- - Emails autorizados (tabla authorized_emails)
 -- - Sesiones de la agenda (tabla sessions)
---
--- Solo elimina los VOTOS y ETIQUETAS de prueba.
 --
 -- Para ejecutar este script:
 -- 1. Ir a Supabase SQL Editor

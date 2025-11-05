@@ -23,15 +23,21 @@ Este documento describe el proceso para eliminar todas las votaciones y etiqueta
 
 El script elimina **solo** los siguientes datos de prueba:
 
-1. **Votaciones de ponencias** (tabla `votes`)
+1. **Topics de votación de prueba** (tabla `voting_topics`)
+   - "Best Session Topic for Next Year" (en inglés)
+   - "Preferred Session Format" (en inglés)
+   - **Resultado:** De 8 topics → 6 topics reales
+
+2. **Votaciones de ponencias** (tabla `votes`)
    - Todos los votos emitidos durante las pruebas
+   - Incluye votos de los topics eliminados
    - Puntuaciones: 6, 5, 4, 3, 2, 1 puntos
 
-2. **Votaciones de pósters** (tabla `poster_votes`)
+3. **Votaciones de pósters** (tabla `poster_votes`)
    - Todos los votos a pósters durante las pruebas
    - Máximo 4 votos por usuario
 
-3. **Etiquetas/Tags** (tabla `tags`)
+4. **Etiquetas/Tags** (tabla `tags`)
    - Todas las etiquetas enviadas al Ágora durante las pruebas
    - Palabras clave compartidas por usuarios
 
@@ -45,9 +51,14 @@ El script **preserva** los siguientes datos importantes:
    - Usuarios que se han registrado en la app
    - Nombres y emails
 
-2. **Topics de votación** (`voting_topics`)
-   - Las 6 ponencias participantes
-   - Títulos, autores, organizaciones
+2. **Topics de votación REALES** (`voting_topics`)
+   - Las 6 ponencias participantes del concurso:
+     1. "¡Sin esperas ni burocracia! El poder de los Anticipos de Caja Fija"
+     2. "La gestión de la Oferta de Empleo Público en el CHGUV"
+     3. "Del trámite al dato en el Ayuntamiento de Sentmenat"
+     4. "La simplicidad detrás del cálculo: solicitud de instalación de barras de bar en vía pública"
+     5. "La locura de desplazarse en comisión de servicio"
+     6. "Hacer fácil lo complejo: la Comunicación Previa de obras definitiva"
 
 3. **Pósters del concurso** (`posters`)
    - Los pósters participantes
@@ -93,6 +104,9 @@ CREATE TABLE tags_backup AS SELECT * FROM tags;
 Deberías ver estos mensajes en los resultados:
 
 ```
+📊 Topics de votación encontrados: 8
+✅ Topics de prueba eliminados. Quedan 6 ponencias reales
+
 📊 Votaciones de ponencias encontradas: X
 ✅ Todas las votaciones de ponencias han sido eliminadas
 
@@ -105,6 +119,7 @@ Deberías ver estos mensajes en los resultados:
 ==========================================
          RESUMEN DE LIMPIEZA
 ==========================================
+Topics de votación (debe ser 6): 6
 Votaciones de ponencias restantes: 0
 Votaciones de pósters restantes: 0
 Etiquetas restantes: 0
@@ -118,6 +133,10 @@ Etiquetas restantes: 0
 Ejecuta estas queries para confirmar:
 
 ```sql
+-- Verificar topics de votación
+SELECT COUNT(*) FROM voting_topics;
+-- Debe devolver: 6 (solo las ponencias reales)
+
 -- Verificar votaciones de ponencias
 SELECT COUNT(*) FROM votes;
 -- Debe devolver: 0
@@ -130,8 +149,11 @@ SELECT COUNT(*) FROM poster_votes;
 SELECT COUNT(*) FROM tags;
 -- Debe devolver: 0
 
+-- Ver las 6 ponencias reales que quedaron
+SELECT title FROM voting_topics ORDER BY created_at;
+-- Debe mostrar las 6 ponencias en español
+
 -- Verificar que los datos importantes siguen ahí
-SELECT COUNT(*) FROM voting_topics;  -- Debe ser 6 (las ponencias)
 SELECT COUNT(*) FROM posters;        -- Debe ser el número de pósters
 SELECT COUNT(*) FROM authorized_emails;  -- Debe ser 489
 ```
@@ -196,16 +218,16 @@ Después de ejecutar el script, verifica:
 
 Después de la limpieza, deberías tener:
 
-| Tabla | Registros Esperados |
-|-------|---------------------|
-| `votes` | **0** (limpiado) |
-| `poster_votes` | **0** (limpiado) |
-| `tags` | **0** (limpiado) |
-| `voting_topics` | **6** (preservado) |
-| `posters` | **~10-15** (preservado) |
-| `attendees` | **Varios** (preservado) |
-| `authorized_emails` | **489** (preservado) |
-| `sessions` | **~20-30** (preservado) |
+| Tabla | Antes | Después | Estado |
+|-------|-------|---------|--------|
+| `voting_topics` | **8** | **6** | 2 eliminados (prueba) |
+| `votes` | **Varios** | **0** | Limpiado |
+| `poster_votes` | **Varios** | **0** | Limpiado |
+| `tags` | **Varios** | **0** | Limpiado |
+| `posters` | **~10-15** | **~10-15** | Preservado |
+| `attendees` | **Varios** | **Varios** | Preservado |
+| `authorized_emails` | **489** | **489** | Preservado |
+| `sessions` | **~20-30** | **~20-30** | Preservado |
 
 ---
 
