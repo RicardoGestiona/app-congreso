@@ -539,22 +539,32 @@
                 // Consultar tags
                 const { data: tagsData, error } = await supabaseClient
                     .from('tags')
-                    .select('id, name, color')
+                    .select('id, name, color, source')
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
 
                 console.log(`✅ ${tagsData.length} etiquetas cargadas`);
 
-                // Contar frecuencia
+                // Contar frecuencia y clasificar por fuente
                 const tagFrequency = {};
                 const tagColors = {};
+                let userSourceCount = 0;
+                let presentationSourceCount = 0;
 
                 tagsData.forEach(tag => {
                     const tagName = tag.name.toLowerCase().trim();
                     tagFrequency[tagName] = (tagFrequency[tagName] || 0) + 1;
                     if (!tagColors[tagName]) {
                         tagColors[tagName] = tag.color;
+                    }
+                    
+                    // Contar por fuente
+                    const source = tag.source || 'user';
+                    if (source === 'user') {
+                        userSourceCount++;
+                    } else if (source === 'presentation') {
+                        presentationSourceCount++;
                     }
                 });
 
@@ -568,9 +578,9 @@
                     .sort((a, b) => b.count - a.count);
 
                 // Actualizar stats
-                const attendeesTags = tagsData.length;
+                const attendeesTags = userSourceCount;
                 const uniqueTags = tagArray.length;
-                const presentationsTags = 0; // Por ahora 0, vendrá de otra fuente en el futuro
+                const presentationsTags = presentationSourceCount;
                 const totalTags = attendeesTags + presentationsTags;
 
                 document.getElementById('total-tags').textContent = totalTags;
