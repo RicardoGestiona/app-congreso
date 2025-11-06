@@ -512,8 +512,8 @@
 
     <script>
         // Configuración de Supabase
-        const supabaseUrl = 'https://dacpkbftkzwnpnhirgny.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhY3BrYmZ0a3p3bnBuaGlyZ255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjIyMzMsImV4cCI6MjA3NTU5ODIzM30.fOIihFR2oiHSr5VWRrn5KczCZbf65Mdj7TE2kRXS6JQ';
+        const supabaseUrl = 'https://hipozwoqmmnotlhscfso.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcG96d29xbW1ub3RsaHNjZnNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxODI4MTUsImV4cCI6MjA3Nzc1ODgxNX0.GItdUiV31jgXF01-18AlPdw_VVxXWPNF93paapU5lmo';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         let refreshInterval = null;
@@ -539,49 +539,60 @@
                 // Consultar tags
                 const { data: tagsData, error } = await supabaseClient
                     .from('tags')
-                    .select('id, name, color, source')
+                    .select('id, name, color')
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
 
                 console.log(`✅ ${tagsData.length} etiquetas cargadas`);
 
-                // Contar frecuencia y clasificar por fuente
+                // Función para normalizar etiquetas (quitar tildes, puntuación, etc.)
+                function normalizeTag(text) {
+                    return text
+                        .toLowerCase()
+                        .trim()
+                        .normalize("NFD")  // Descomponer caracteres con tildes
+                        .replace(/[\u0300-\u036f]/g, "")  // Quitar diacríticos (tildes)
+                        .replace(/[^\w\s]/g, "")  // Quitar puntuación (excepto letras, números y espacios)
+                        .replace(/\s+/g, " ")  // Normalizar espacios múltiples
+                        .trim();
+                }
+
+                // Contar frecuencia con normalización
                 const tagFrequency = {};
                 const tagColors = {};
-                let userSourceCount = 0;
-                let presentationSourceCount = 0;
+                const tagOriginalNames = {};  // Guardar el nombre original más común
 
                 tagsData.forEach(tag => {
-                    const tagName = tag.name.toLowerCase().trim();
-                    tagFrequency[tagName] = (tagFrequency[tagName] || 0) + 1;
-                    if (!tagColors[tagName]) {
-                        tagColors[tagName] = tag.color;
+                    const normalized = normalizeTag(tag.name);
+                    const original = tag.name.toLowerCase().trim();
+
+                    tagFrequency[normalized] = (tagFrequency[normalized] || 0) + 1;
+
+                    if (!tagColors[normalized]) {
+                        tagColors[normalized] = tag.color;
                     }
-                    
-                    // Contar por fuente
-                    const source = tag.source || 'user';
-                    if (source === 'user') {
-                        userSourceCount++;
-                    } else if (source === 'presentation') {
-                        presentationSourceCount++;
+
+                    // Guardar el nombre original más corto (sin puntuación extra)
+                    if (!tagOriginalNames[normalized] || original.length < tagOriginalNames[normalized].length) {
+                        tagOriginalNames[normalized] = original;
                     }
                 });
 
-                // Ordenar por frecuencia
+                // Ordenar por frecuencia usando el nombre original más representativo
                 const tagArray = Object.entries(tagFrequency)
-                    .map(([name, count]) => ({
-                        name,
+                    .map(([normalized, count]) => ({
+                        name: tagOriginalNames[normalized],
                         count,
-                        color: tagColors[name]
+                        color: tagColors[normalized]
                     }))
                     .sort((a, b) => b.count - a.count);
 
-                // Actualizar stats
-                const attendeesTags = userSourceCount;
+                // Actualizar stats (todas las tags son de usuarios)
+                const totalTags = tagsData.length;
                 const uniqueTags = tagArray.length;
-                const presentationsTags = presentationSourceCount;
-                const totalTags = attendeesTags + presentationsTags;
+                const attendeesTags = totalTags;
+                const presentationsTags = 0;
 
                 document.getElementById('total-tags').textContent = totalTags;
                 document.getElementById('unique-tags').textContent = uniqueTags;
