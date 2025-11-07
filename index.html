@@ -18,15 +18,36 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             line-height: 1.6; color: #333; background: #fff; min-height: 100vh;
+            position: relative;
         }
+        /* Background image with overlay */
         body::before {
-            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 20% 20%, rgba(0,217,192,0.08) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(0,245,224,0.06) 0%, transparent 50%);
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('portada-dosier-encuentro.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            z-index: -2;
+        }
+        /* White overlay to soften the background */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.92);
             z-index: -1;
         }
-        .container { max-width: 900px; margin: 0 auto; padding: var(--spacing-lg); }
-        .header { text-align: center; padding: var(--spacing-xxl) var(--spacing-md); margin-bottom: var(--spacing-xl); }
+        .container { max-width: 900px; margin: 0 auto; padding: var(--spacing-lg); position: relative; z-index: 1; }
+        .header { text-align: center; padding: var(--spacing-xl) var(--spacing-md) var(--spacing-md); margin-bottom: var(--spacing-md); }
         .logo { max-width: 200px; height: auto; margin-bottom: var(--spacing-lg); filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15)); }
         .title {
             font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700;
@@ -35,11 +56,48 @@
             margin-bottom: var(--spacing-md); line-height: 1.2;
         }
         .subtitle { font-size: clamp(1.1rem, 3vw, 1.5rem); color: var(--color-secondary); font-weight: 500; margin-bottom: var(--spacing-sm); }
-        .event-edition { font-size: 1rem; color: var(--color-teal); }
+        
+        /* KPIs Section - Destacada pero no predominante */
+        .kpis-section {
+            background: linear-gradient(135deg, rgba(0,217,192,0.12), rgba(0,245,224,0.08));
+            backdrop-filter: blur(10px);
+            border-radius: 16px; padding: var(--spacing-lg) var(--spacing-md);
+            margin-bottom: var(--spacing-xl); border: 2px solid rgba(0,217,192,0.4);
+            box-shadow: 0 4px 16px rgba(0,217,192,0.15);
+        }
+        .kpis-title {
+            font-size: 1.1rem; text-align: center; color: var(--color-secondary);
+            font-weight: 600; margin-bottom: var(--spacing-md); text-transform: uppercase;
+            letter-spacing: 1px; opacity: 0.9;
+        }
+        .kpis-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: var(--spacing-md); max-width: 700px; margin: 0 auto;
+        }
+        .kpi-item {
+            text-align: center; padding: var(--spacing-sm);
+            background: rgba(255,255,255,0.7); border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        .kpi-item:hover {
+            background: rgba(255,255,255,0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,217,192,0.2);
+        }
+        .kpi-icon { font-size: 1.8rem; margin-bottom: 0.3rem; display: block; }
+        .kpi-number {
+            font-size: 1.5rem; font-weight: 700;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-cyan-bright));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 0.2rem; display: block;
+        }
+        .kpi-label { font-size: 0.85rem; color: var(--color-secondary); font-weight: 500; }
+        
         .content-card {
-            background: #fff; border-radius: 24px; padding: var(--spacing-xl);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2); margin-bottom: var(--spacing-xl);
+            background: rgba(255, 255, 255, 0.95); border-radius: 24px; padding: var(--spacing-xl);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15); margin-bottom: var(--spacing-xl);
             border: 3px solid var(--color-primary);
+            backdrop-filter: blur(10px);
         }
         .message-section { text-align: center; margin-bottom: var(--spacing-xl); }
         .message-icon { font-size: 4rem; margin-bottom: var(--spacing-md); display: block; }
@@ -47,7 +105,8 @@
         .message-text { font-size: 1.1rem; line-height: 1.8; margin-bottom: var(--spacing-md); }
         .message-text strong { color: var(--color-primary); font-weight: 600; }
         .next-event {
-            background: linear-gradient(135deg, rgba(0,217,192,0.05), rgba(0,245,224,0.02));
+            background: linear-gradient(135deg, rgba(0,217,192,0.08), rgba(0,245,224,0.05));
+            backdrop-filter: blur(5px);
             border-radius: 16px; padding: var(--spacing-lg); text-align: center;
             margin-bottom: var(--spacing-xl); border: 2px solid var(--color-primary);
         }
@@ -61,76 +120,136 @@
         .save-date-text { font-size: 1rem; color: var(--color-secondary); font-weight: 500; }
         .survey-section {
             text-align: center; padding: var(--spacing-lg);
-            background: linear-gradient(135deg, rgba(0,217,192,0.05), rgba(0,245,224,0.03));
+            background: linear-gradient(135deg, rgba(0,217,192,0.08), rgba(0,245,224,0.05));
+            backdrop-filter: blur(5px);
             border-radius: 16px; margin-bottom: var(--spacing-xl);
         }
         .survey-icon { font-size: 3rem; margin-bottom: var(--spacing-md); display: block; }
         .survey-title { font-size: 1.5rem; color: var(--color-secondary-dark); font-weight: 600; margin-bottom: var(--spacing-sm); }
         .survey-description { font-size: 1rem; margin-bottom: var(--spacing-lg); line-height: 1.7; }
-        .survey-button {
+        .survey-button, .register-button {
             display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-sm);
             padding: 1rem 2rem; font-size: 1.1rem; font-weight: 600; color: #fff;
             background: linear-gradient(135deg, var(--color-primary), var(--color-cyan-bright));
             border: none; border-radius: 12px; text-decoration: none; cursor: pointer;
             transition: all 0.3s ease; box-shadow: 0 8px 32px rgba(0,217,192,0.3);
         }
-        .survey-button:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,217,192,0.4); }
-        .survey-button svg { width: 24px; height: 24px; transition: transform 0.3s ease; }
-        .survey-button:hover svg { transform: translateX(4px); }
+        .survey-button:hover, .register-button:hover { 
+            transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,217,192,0.4); 
+        }
+        .survey-button svg, .register-button svg { 
+            width: 24px; height: 24px; transition: transform 0.3s ease; 
+        }
+        .survey-button:hover svg, .register-button:hover svg { transform: translateX(4px); }
         .survey-note { font-size: 0.85rem; color: var(--color-teal); margin-top: var(--spacing-md); font-style: italic; }
-        .highlights { margin-bottom: var(--spacing-xl); }
-        .highlights-title { font-size: 1.5rem; color: var(--color-secondary-dark); font-weight: 600; text-align: center; margin-bottom: var(--spacing-lg); }
-        .highlights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-md); }
-        .highlight-card {
-            background: #fff; border-radius: 12px; padding: var(--spacing-lg); text-align: center;
-            border: 2px solid #e0e0e0; transition: all 0.3s ease;
+        
+        /* Registro de Asistencia Section */
+        .registration-section {
+            background: linear-gradient(135deg, rgba(0,217,192,0.08), rgba(0,245,224,0.05));
+            backdrop-filter: blur(10px);
+            border-radius: 16px; padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl); border: 2px solid rgba(0,217,192,0.3);
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,217,192,0.1);
         }
-        .highlight-card:hover { border-color: var(--color-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-4px); }
-        .highlight-icon { font-size: 2.5rem; margin-bottom: var(--spacing-sm); display: block; }
-        .highlight-number {
-            font-size: 2rem; font-weight: 700;
-            background: linear-gradient(135deg, var(--color-primary), var(--color-cyan-bright));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;
+        .registration-icon { font-size: 2.5rem; margin-bottom: var(--spacing-sm); display: block; }
+        .registration-title { 
+            font-size: 1.3rem; color: var(--color-secondary-dark); 
+            font-weight: 600; margin-bottom: var(--spacing-sm); 
         }
-        .highlight-label { font-size: 1rem; color: var(--color-secondary); font-weight: 500; }
-        .footer { text-align: center; padding: var(--spacing-xl) var(--spacing-md); border-top: 2px solid #e0e0e0; margin-top: var(--spacing-xxl); }
-        .footer-logo { max-width: 150px; height: auto; margin-bottom: var(--spacing-md); opacity: 0.8; }
-        .footer-text { font-size: 0.9rem; color: var(--color-teal); margin-bottom: var(--spacing-sm); }
-        .footer-links { display: flex; justify-content: center; gap: var(--spacing-md); margin-top: var(--spacing-md); }
-        .footer-link { color: var(--color-primary); text-decoration: none; font-weight: 500; transition: color 0.2s ease; }
-        .footer-link:hover { color: var(--color-primary-dark); text-decoration: underline; }
+        .registration-text { 
+            font-size: 0.95rem; color: #333; 
+            margin-bottom: var(--spacing-md); line-height: 1.6; 
+        }
+        
+        .footer { 
+            text-align: center; padding: var(--spacing-xl) var(--spacing-md); 
+            border-top: 2px solid rgba(0,217,192,0.2); margin-top: var(--spacing-xxl); 
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+        }
+        .copyright-footer { font-size: 0.9rem; color: var(--color-teal); }
+        .copyright-footer a { color: var(--color-primary); text-decoration: none; font-weight: 500; transition: color 0.2s ease; }
+        .copyright-footer a:hover { color: var(--color-primary-dark); text-decoration: underline; }
+        .footer-text { font-size: 0.9rem; color: var(--color-teal); margin-top: var(--spacing-sm); }
+        
         @media (max-width: 768px) {
             .container { padding: var(--spacing-md); }
-            .highlights-grid { grid-template-columns: 1fr; }
-            .footer-links { flex-direction: column; gap: var(--spacing-sm); }
+            .kpis-grid { grid-template-columns: repeat(2, 1fr); }
+            body::before { background-attachment: scroll; }
+        }
+        @media (max-width: 480px) {
+            .kpis-grid { grid-template-columns: repeat(2, 1fr); gap: var(--spacing-sm); }
+            .kpi-item { padding: 0.7rem 0.5rem; }
+            .kpi-number { font-size: 1.3rem; }
+            .kpi-label { font-size: 0.75rem; }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <header class="header">
             <img src="gestiona-blanco.png" alt="esPublico Logo" class="logo" onerror="this.style.display='none'">
             <h1 class="title">¡Gracias por participar!</h1>
-            <p class="subtitle">Ha sido un placer compartir estos días con todos vosotros</p>
-            <p class="event-edition">III Encuentro Anual esPublico 2025</p>
+            <p class="subtitle">Ha sido un placer compartir con todos vosotros el III Encuentro de Expertos en Administración Avanzada de Gestiona</p>
         </header>
+
+        <!-- KPIs Section - Destacada -->
+        <div class="kpis-section">
+            <h3 class="kpis-title">III Encuentro en cifras</h3>
+            <div class="kpis-grid">
+                <div class="kpi-item">
+                    <span class="kpi-icon">👥</span>
+                    <span class="kpi-number">200+</span>
+                    <div class="kpi-label">Asistentes</div>
+                </div>
+                <div class="kpi-item">
+                    <span class="kpi-icon">🗣️</span>
+                    <span class="kpi-number">15+</span>
+                    <div class="kpi-label">Ponencias</div>
+                </div>
+                <div class="kpi-item">
+                    <span class="kpi-icon">📑</span>
+                    <span class="kpi-number">8</span>
+                    <div class="kpi-label">Pósters</div>
+                </div>
+                <div class="kpi-item">
+                    <span class="kpi-icon">🎓</span>
+                    <span class="kpi-number">130+</span>
+                    <div class="kpi-label">Pax en talleres</div>
+                </div>
+                <div class="kpi-item">
+                    <span class="kpi-icon">📜</span>
+                    <span class="kpi-number">75</span>
+                    <div class="kpi-label">Diplomas entregados</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Card -->
         <div class="content-card">
+            <!-- Thank You Message -->
             <div class="message-section">
                 <span class="message-icon">🎉</span>
                 <h2 class="message-title">Una experiencia inolvidable</h2>
-                <p class="message-text">Gracias a vuestra participación, ideas y energía, el <strong>III Encuentro Anual</strong> ha sido todo un éxito. Hemos compartido conocimientos, experiencias y hemos construido juntos el futuro de la gestión pública digital.</p>
+                <p class="message-text">Gracias a vuestra participación, ideas y energía, el <strong>III Encuentro Anual de usuarios certificados</strong> ha sido un éxito. Hemos compartido conocimientos, experiencias y hemos construido juntos el futuro de la administración electrónica.</p>
                 <p class="message-text">Este encuentro no habría sido posible sin vuestra implicación. Cada ponencia, cada pregunta y cada conversación ha contribuido a crear un evento verdaderamente enriquecedor.</p>
             </div>
+
+            <!-- Next Event -->
             <div class="next-event">
                 <p class="next-event-label">Próxima Edición</p>
                 <p class="next-event-date">5 de Noviembre de 2026</p>
                 <span class="calendar-icon">📅</span>
                 <p class="save-date-text">¡Reserva la fecha en tu calendario!</p>
             </div>
+
+            <!-- Survey Section -->
             <div class="survey-section">
                 <span class="survey-icon">📋</span>
                 <h3 class="survey-title">Tu opinión es importante</h3>
-                <p class="survey-description">Ayúdanos a mejorar para la próxima edición. Tu feedback es fundamental para seguir creciendo y ofrecerte la mejor experiencia posible.</p>
+                <p class="survey-description">Ayúdanos a mejorar para la próxima edición. Tu feedback es fundamental para seguir creciendo y superarnos cada año.</p>
                 <a href="#" id="surveyButton" class="survey-button" target="_blank" rel="noopener noreferrer">
                     <span>Completar Encuesta de Satisfacción</span>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -138,42 +257,40 @@
                 <p class="survey-note">Solo te llevará unos minutos y nos será de gran ayuda</p>
             </div>
         </div>
-        <div class="highlights">
-            <h3 class="highlights-title">III Encuentro en cifras</h3>
-            <div class="highlights-grid">
-                <div class="highlight-card">
-                    <span class="highlight-icon">👥</span>
-                    <div class="highlight-number">200+</div>
-                    <div class="highlight-label">Asistentes</div>
-                </div>
-                <div class="highlight-card">
-                    <span class="highlight-icon">🗣️</span>
-                    <div class="highlight-number">15+</div>
-                    <div class="highlight-label">Ponencias</div>
-                </div>
-                <div class="highlight-card">
-                    <span class="highlight-icon">📑</span>
-                    <div class="highlight-number">8</div>
-                    <div class="highlight-label">Pósters</div>
-                </div>
-            </div>
+
+        <!-- Registration Section -->
+        <div class="registration-section">
+            <span class="registration-icon">✍️</span>
+            <h3 class="registration-title">¿Todavía no has registrado tu asistencia?</h3>
+            <p class="registration-text">Si asististe al evento pero no completaste el formulario de registro, puedes hacerlo ahora para recibir tu certificado de asistencia y mantenerte informado sobre futuras ediciones.</p>
+            <a href="#" id="registerButton" class="register-button" target="_blank" rel="noopener noreferrer">
+                <span>Registrar mi Asistencia</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
         </div>
+
+        <!-- Footer -->
         <footer class="footer">
-            <img src="gestiona-blanco.png" alt="esPublico" class="footer-logo" onerror="this.style.display='none'">
-            <p class="footer-text">© 2025 esPublico - Gestión Pública Digital</p>
-            <p class="footer-text">Seguimos trabajando por la innovación en la administración pública</p>
-            <div class="footer-links">
-                <a href="https://espublico.com" class="footer-link" target="_blank" rel="noopener noreferrer">Web oficial</a>
-                <a href="mailto:contacto@espublico.com" class="footer-link">Contacto</a>
-            </div>
+            <div class="copyright-footer">
+                Copyright © 2001-2025 esPublico Servicios para la Administración S.A.U. Todos los derechos reservados. <a href="#" onclick="showLegalNotice(event)">Aviso legal</a>
+                <p class="footer-text">Seguimos aprendiendo juntos</p>
+            </div> 
         </footer>
     </div>
+    
     <script>
         const surveyConfig = {
             surveyUrl: '', // TODO: Insert survey URL here (e.g., 'https://forms.google.com/your-survey-id')
             showAlert: true,
             alertMessage: 'La encuesta estará disponible próximamente. ¡Gracias por tu interés!'
         };
+        
+        const registrationConfig = {
+            registrationUrl: '', // TODO: Insert registration form URL here
+            showAlert: true,
+            alertMessage: 'El formulario de registro estará disponible próximamente.'
+        };
+        
         function initializeSurveyButton() {
             const surveyButton = document.getElementById('surveyButton');
             if (!surveyButton) return;
@@ -187,10 +304,35 @@
                 });
             }
         }
+        
+        function initializeRegistrationButton() {
+            const registerButton = document.getElementById('registerButton');
+            if (!registerButton) return;
+            if (registrationConfig.registrationUrl && registrationConfig.registrationUrl.trim() !== '') {
+                registerButton.href = registrationConfig.registrationUrl;
+            } else {
+                registerButton.href = '#';
+                registerButton.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    if (registrationConfig.showAlert) alert(registrationConfig.alertMessage);
+                });
+            }
+        }
+        
+        function showLegalNotice(event) {
+            event.preventDefault();
+            alert('Aviso Legal\n\n' +
+                  'Copyright © 2001-2025 esPublico Servicios para la Administración S.A.U.\n\n' +
+                  'Todos los derechos reservados.\n\n' +
+                  'Para más información sobre el aviso legal, contacte con nosotros en contacto@espublico.com');
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             initializeSurveyButton();
-            console.log('%c📋 Survey Configuration', 'color: #00D9C0; font-size: 14px; font-weight: bold;');
-            console.log('To add survey URL: Update surveyConfig.surveyUrl in the script section');
+            initializeRegistrationButton();
+            console.log('%c📋 Landing Page Configuration', 'color: #00D9C0; font-size: 14px; font-weight: bold;');
+            console.log('Survey URL: Update surveyConfig.surveyUrl in the script section');
+            console.log('Registration URL: Update registrationConfig.registrationUrl in the script section');
         });
     </script>
 </body>
