@@ -49,17 +49,14 @@
         .container { max-width: 900px; margin: 0 auto; padding: var(--spacing-lg); position: relative; z-index: 1; }
         .header { text-align: center; padding: var(--spacing-xl) var(--spacing-md) var(--spacing-md); margin-bottom: var(--spacing-md); }
         
-        /* Logo container with background */
-        .logo-container {
+        /* Logo without container */
+        .logo { 
+            max-width: 250px; 
+            height: auto; 
+            margin-bottom: var(--spacing-lg); 
             display: inline-block;
-            background: linear-gradient(135deg, rgba(0,217,192,0.15), rgba(0,245,224,0.1));
-            padding: var(--spacing-md);
-            border-radius: 20px;
-            margin-bottom: var(--spacing-lg);
-            border: 2px solid rgba(0,217,192,0.3);
-            box-shadow: 0 4px 16px rgba(0,217,192,0.2);
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.1));
         }
-        .logo { max-width: 200px; height: auto; display: block; }
         
         .title {
             font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700;
@@ -184,38 +181,18 @@
         .copyright-footer a { color: var(--color-primary); text-decoration: none; font-weight: 500; transition: color 0.2s ease; }
         .copyright-footer a:hover { color: var(--color-primary-dark); text-decoration: underline; }
         
-        /* Footer quote style */
-        .footer-quote {
-            font-size: 1.1rem;
-            color: var(--color-secondary);
-            margin-top: var(--spacing-md);
-            font-style: italic;
-            font-weight: 400;
-            padding: var(--spacing-md);
-            border-left: 4px solid var(--color-primary);
-            background: linear-gradient(90deg, rgba(0,217,192,0.08), transparent);
-            border-radius: 0 8px 8px 0;
-            display: inline-block;
-            text-align: left;
-        }
-        .footer-quote .highlight {
-            color: var(--color-cyan-bright);
-            font-weight: 600;
-        }
-        
         @media (max-width: 768px) {
             .container { padding: var(--spacing-md); }
             .kpis-grid { grid-template-columns: repeat(2, 1fr); }
             body::before { background-attachment: scroll; }
-            .logo-container { padding: var(--spacing-sm); }
-            .logo { max-width: 150px; }
+            .logo { max-width: 180px; }
         }
         @media (max-width: 480px) {
             .kpis-grid { grid-template-columns: repeat(2, 1fr); gap: var(--spacing-sm); }
             .kpi-item { padding: 0.7rem 0.5rem; }
             .kpi-number { font-size: 1.3rem; }
             .kpi-label { font-size: 0.75rem; }
-            .footer-quote { font-size: 1rem; padding: var(--spacing-sm); }
+            .logo { max-width: 150px; }
         }
     </style>
 </head>
@@ -223,9 +200,7 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <div class="logo-container">
-                <img src="gestiona-blanco.png" alt="esPublico Logo" class="logo" onerror="this.parentElement.style.display='none'">
-            </div>
+            <img src="Gestiona-RGB.png" alt="Gestiona Logo" class="logo" onerror="this.style.display='none'">
             <h1 class="title">¡Gracias!</h1>
             <p class="subtitle">Ha sido un placer compartir con todos vosotros el III Encuentro de Expertos en Administración Avanzada de Gestiona</p>
         </header>
@@ -309,9 +284,6 @@
             <div class="copyright-footer">
                 Copyright © 2001-2025 esPublico Servicios para la Administración S.A.U. Todos los derechos reservados. <a href="#" onclick="showLegalNotice(event)">Aviso legal</a>
             </div>
-            <blockquote class="footer-quote">
-                Seguimos aprendiendo <span class="highlight">juntos</span>
-            </blockquote>
         </footer>
     </div>
     
