@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="III Encuentro Anual esPublico 2025 - ¡Gracias por participar! Nos vemos en 2026">
+    <meta name="description" content="III Encuentro Anual esPublico 2025 - ¡Gracias! Nos vemos en 2026">
     <meta name="theme-color" content="#00D9C0">
     <title>¡Hasta pronto! | III Encuentro Anual esPublico</title>
     <style>
@@ -48,7 +48,19 @@
         }
         .container { max-width: 900px; margin: 0 auto; padding: var(--spacing-lg); position: relative; z-index: 1; }
         .header { text-align: center; padding: var(--spacing-xl) var(--spacing-md) var(--spacing-md); margin-bottom: var(--spacing-md); }
-        .logo { max-width: 200px; height: auto; margin-bottom: var(--spacing-lg); filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15)); }
+        
+        /* Logo container with background */
+        .logo-container {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(0,217,192,0.15), rgba(0,245,224,0.1));
+            padding: var(--spacing-md);
+            border-radius: 20px;
+            margin-bottom: var(--spacing-lg);
+            border: 2px solid rgba(0,217,192,0.3);
+            box-shadow: 0 4px 16px rgba(0,217,192,0.2);
+        }
+        .logo { max-width: 200px; height: auto; display: block; }
+        
         .title {
             font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700;
             background: linear-gradient(135deg, var(--color-primary), var(--color-cyan-bright));
@@ -171,18 +183,39 @@
         .copyright-footer { font-size: 0.9rem; color: var(--color-teal); }
         .copyright-footer a { color: var(--color-primary); text-decoration: none; font-weight: 500; transition: color 0.2s ease; }
         .copyright-footer a:hover { color: var(--color-primary-dark); text-decoration: underline; }
-        .footer-text { font-size: 0.9rem; color: var(--color-teal); margin-top: var(--spacing-sm); }
+        
+        /* Footer quote style */
+        .footer-quote {
+            font-size: 1.1rem;
+            color: var(--color-secondary);
+            margin-top: var(--spacing-md);
+            font-style: italic;
+            font-weight: 400;
+            padding: var(--spacing-md);
+            border-left: 4px solid var(--color-primary);
+            background: linear-gradient(90deg, rgba(0,217,192,0.08), transparent);
+            border-radius: 0 8px 8px 0;
+            display: inline-block;
+            text-align: left;
+        }
+        .footer-quote .highlight {
+            color: var(--color-cyan-bright);
+            font-weight: 600;
+        }
         
         @media (max-width: 768px) {
             .container { padding: var(--spacing-md); }
             .kpis-grid { grid-template-columns: repeat(2, 1fr); }
             body::before { background-attachment: scroll; }
+            .logo-container { padding: var(--spacing-sm); }
+            .logo { max-width: 150px; }
         }
         @media (max-width: 480px) {
             .kpis-grid { grid-template-columns: repeat(2, 1fr); gap: var(--spacing-sm); }
             .kpi-item { padding: 0.7rem 0.5rem; }
             .kpi-number { font-size: 1.3rem; }
             .kpi-label { font-size: 0.75rem; }
+            .footer-quote { font-size: 1rem; padding: var(--spacing-sm); }
         }
     </style>
 </head>
@@ -190,14 +223,16 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <img src="gestiona-blanco.png" alt="esPublico Logo" class="logo" onerror="this.style.display='none'">
-            <h1 class="title">¡Gracias por participar!</h1>
+            <div class="logo-container">
+                <img src="gestiona-blanco.png" alt="esPublico Logo" class="logo" onerror="this.parentElement.style.display='none'">
+            </div>
+            <h1 class="title">¡Gracias!</h1>
             <p class="subtitle">Ha sido un placer compartir con todos vosotros el III Encuentro de Expertos en Administración Avanzada de Gestiona</p>
         </header>
 
         <!-- KPIs Section - Destacada -->
         <div class="kpis-section">
-            <h3 class="kpis-title">III Encuentro en cifras</h3>
+            <h3 class="kpis-title">CIFRAS III ENCUENTRO DE USUARIOS CERTIFICADOS</h3>
             <div class="kpis-grid">
                 <div class="kpi-item">
                     <span class="kpi-icon">👥</span>
@@ -273,8 +308,10 @@
         <footer class="footer">
             <div class="copyright-footer">
                 Copyright © 2001-2025 esPublico Servicios para la Administración S.A.U. Todos los derechos reservados. <a href="#" onclick="showLegalNotice(event)">Aviso legal</a>
-                <p class="footer-text">Seguimos aprendiendo juntos</p>
-            </div> 
+            </div>
+            <blockquote class="footer-quote">
+                Seguimos aprendiendo <span class="highlight">juntos</span>
+            </blockquote>
         </footer>
     </div>
     
