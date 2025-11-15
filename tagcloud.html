@@ -544,18 +544,32 @@
 
                 if (error) throw error;
 
-                console.log(`✅ ${tagsData.length} etiquetas cargadas`);
+                console.log(`✅ ${tagsData.length} registros de etiquetas cargados`);
 
-                // Contar frecuencia
+                // Contar frecuencia - SEPARAR POR PALABRAS
                 const tagFrequency = {};
                 const tagColors = {};
+                let totalWordsCount = 0;
 
                 tagsData.forEach(tag => {
-                    const tagName = tag.name.toLowerCase().trim();
-                    tagFrequency[tagName] = (tagFrequency[tagName] || 0) + 1;
-                    if (!tagColors[tagName]) {
-                        tagColors[tagName] = tag.color;
-                    }
+                    // Separar el nombre de la etiqueta en palabras individuales
+                    const words = tag.name.toLowerCase().trim().split(/[\s,;]+/);
+
+                    words.forEach(word => {
+                        // Limpiar la palabra (eliminar caracteres especiales)
+                        const cleanWord = word.replace(/[^\wáéíóúñü]/gi, '').trim();
+
+                        // Solo contar palabras con al menos 3 caracteres
+                        if (cleanWord.length >= 3) {
+                            tagFrequency[cleanWord] = (tagFrequency[cleanWord] || 0) + 1;
+                            totalWordsCount++;
+
+                            // Guardar color si no existe
+                            if (!tagColors[cleanWord]) {
+                                tagColors[cleanWord] = tag.color;
+                            }
+                        }
+                    });
                 });
 
                 // Ordenar por frecuencia
@@ -568,10 +582,10 @@
                     .sort((a, b) => b.count - a.count);
 
                 // Actualizar stats
-                const attendeesTags = tagsData.length;
-                const uniqueTags = tagArray.length;
+                const totalTags = totalWordsCount; // Total de palabras contadas
+                const uniqueTags = tagArray.length; // Palabras únicas
+                const attendeesTags = tagsData.length; // Registros de asistentes
                 const presentationsTags = 0; // Por ahora 0, vendrá de otra fuente en el futuro
-                const totalTags = attendeesTags + presentationsTags;
 
                 document.getElementById('total-tags').textContent = totalTags;
                 document.getElementById('unique-tags').textContent = uniqueTags;
