@@ -537,10 +537,12 @@
                 console.log('💭 Cargando etiquetas...');
 
                 // Consultar tags (incluir campo 'source')
+                // Nota: Supabase limita a 1000 por defecto, usamos .limit(10000) para obtener todas
                 const { data: tagsData, error } = await supabaseClient
                     .from('tags')
                     .select('id, name, color, source')
-                    .order('created_at', { ascending: false });
+                    .order('created_at', { ascending: false })
+                    .limit(10000);
 
                 if (error) throw error;
 
