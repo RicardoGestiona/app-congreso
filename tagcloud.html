@@ -512,8 +512,8 @@
 
     <script>
         // Configuración de Supabase
-        const supabaseUrl = 'https://hipozwoqmmnotlhscfso.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcG96d29xbW1ub3RsaHNjZnNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxODI4MTUsImV4cCI6MjA3Nzc1ODgxNX0.GItdUiV31jgXF01-18AlPdw_VVxXWPNF93paapU5lmo';
+        const supabaseUrl = 'https://dacpkbftkzwnpnhirgny.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhY3BrYmZ0a3p3bnBuaGlyZ255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjIyMzMsImV4cCI6MjA3NTU5ODIzM30.fOIihFR2oiHSr5VWRrn5KczCZbf65Mdj7TE2kRXS6JQ';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         let refreshInterval = null;
@@ -546,53 +546,32 @@
 
                 console.log(`✅ ${tagsData.length} etiquetas cargadas`);
 
-                // Función para normalizar etiquetas (quitar tildes, puntuación, etc.)
-                function normalizeTag(text) {
-                    return text
-                        .toLowerCase()
-                        .trim()
-                        .normalize("NFD")  // Descomponer caracteres con tildes
-                        .replace(/[\u0300-\u036f]/g, "")  // Quitar diacríticos (tildes)
-                        .replace(/[^\w\s]/g, "")  // Quitar puntuación (excepto letras, números y espacios)
-                        .replace(/\s+/g, " ")  // Normalizar espacios múltiples
-                        .trim();
-                }
-
-                // Contar frecuencia con normalización
+                // Contar frecuencia
                 const tagFrequency = {};
                 const tagColors = {};
-                const tagOriginalNames = {};  // Guardar el nombre original más común
 
                 tagsData.forEach(tag => {
-                    const normalized = normalizeTag(tag.name);
-                    const original = tag.name.toLowerCase().trim();
-
-                    tagFrequency[normalized] = (tagFrequency[normalized] || 0) + 1;
-
-                    if (!tagColors[normalized]) {
-                        tagColors[normalized] = tag.color;
-                    }
-
-                    // Guardar el nombre original más corto (sin puntuación extra)
-                    if (!tagOriginalNames[normalized] || original.length < tagOriginalNames[normalized].length) {
-                        tagOriginalNames[normalized] = original;
+                    const tagName = tag.name.toLowerCase().trim();
+                    tagFrequency[tagName] = (tagFrequency[tagName] || 0) + 1;
+                    if (!tagColors[tagName]) {
+                        tagColors[tagName] = tag.color;
                     }
                 });
 
-                // Ordenar por frecuencia usando el nombre original más representativo
+                // Ordenar por frecuencia
                 const tagArray = Object.entries(tagFrequency)
-                    .map(([normalized, count]) => ({
-                        name: tagOriginalNames[normalized],
+                    .map(([name, count]) => ({
+                        name,
                         count,
-                        color: tagColors[normalized]
+                        color: tagColors[name]
                     }))
                     .sort((a, b) => b.count - a.count);
 
-                // Actualizar stats (todas las tags son de usuarios)
-                const totalTags = tagsData.length;
+                // Actualizar stats
+                const attendeesTags = tagsData.length;
                 const uniqueTags = tagArray.length;
-                const attendeesTags = totalTags;
-                const presentationsTags = 0;
+                const presentationsTags = 0; // Por ahora 0, vendrá de otra fuente en el futuro
+                const totalTags = attendeesTags + presentationsTags;
 
                 document.getElementById('total-tags').textContent = totalTags;
                 document.getElementById('unique-tags').textContent = uniqueTags;
