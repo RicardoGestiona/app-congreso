@@ -473,19 +473,19 @@
         <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Etiquetas Totales</div>
-                <div class="stat-value" id="total-tags">—</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Etiquetas Únicas</div>
+                <div class="stat-label">Palabras Únicas</div>
                 <div class="stat-value" id="unique-tags">—</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">de asistentes</div>
+                <div class="stat-label">Total de Palabras</div>
+                <div class="stat-value" id="total-tags">—</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">De Asistentes</div>
                 <div class="stat-value" id="attendees-count">—</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">de ponencias</div>
+                <div class="stat-label">De Ponencias</div>
                 <div class="stat-value" id="presentations-count">—</div>
             </div>
         </div>
@@ -557,6 +557,8 @@
                 const tagFrequency = {};
                 const tagColors = {};
                 let totalWordsCount = 0;
+                let userWordsCount = 0;
+                let presentationWordsCount = 0;
 
                 tagsData.forEach(tag => {
                     // Separar el nombre de la etiqueta en palabras individuales
@@ -570,6 +572,13 @@
                         if (cleanWord.length >= 3) {
                             tagFrequency[cleanWord] = (tagFrequency[cleanWord] || 0) + 1;
                             totalWordsCount++;
+
+                            // Contar por origen
+                            if (tag.source === 'presentation') {
+                                presentationWordsCount++;
+                            } else {
+                                userWordsCount++;
+                            }
 
                             // Guardar color si no existe
                             if (!tagColors[cleanWord]) {
@@ -591,13 +600,13 @@
                 // Actualizar stats
                 const totalTags = totalWordsCount; // Total de palabras contadas
                 const uniqueTags = tagArray.length; // Palabras únicas
-                const attendeesTags = userTags.length; // Etiquetas de usuarios
-                const presentationsTags = presentationTags.length; // Etiquetas de ponencias
+                const attendeesTags = userWordsCount; // Palabras de usuarios
+                const presentationsTagsCount = presentationWordsCount; // Palabras de ponencias
 
                 document.getElementById('total-tags').textContent = totalTags;
                 document.getElementById('unique-tags').textContent = uniqueTags;
                 document.getElementById('attendees-count').textContent = attendeesTags;
-                document.getElementById('presentations-count').textContent = presentationsTags;
+                document.getElementById('presentations-count').textContent = presentationsTagsCount;
 
                 // Actualizar timestamp
                 updateTimestamp();
