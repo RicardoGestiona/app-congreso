@@ -473,11 +473,11 @@
         <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Palabras Únicas</div>
+                <div class="stat-label">Etiquetas Únicas</div>
                 <div class="stat-value" id="unique-tags">—</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Total de Palabras</div>
+                <div class="stat-label">Total de Etiquetas</div>
                 <div class="stat-value" id="total-tags">—</div>
             </div>
             <div class="stat-card">
@@ -553,39 +553,20 @@
                 console.log(`👥 ${userTags.length} etiquetas de usuarios`);
                 console.log(`📝 ${presentationTags.length} etiquetas de ponencias`);
 
-                // Contar frecuencia - SEPARAR POR PALABRAS
+                // Contar frecuencia - MANTENER ETIQUETAS COMPLETAS (NO separar por palabras)
                 const tagFrequency = {};
                 const tagColors = {};
-                let totalWordsCount = 0;
-                let userWordsCount = 0;
-                let presentationWordsCount = 0;
 
                 tagsData.forEach(tag => {
-                    // Separar el nombre de la etiqueta en palabras individuales
-                    const words = tag.name.toLowerCase().trim().split(/[\s,;]+/);
+                    const tagName = tag.name.toLowerCase().trim();
 
-                    words.forEach(word => {
-                        // Limpiar la palabra (eliminar caracteres especiales)
-                        const cleanWord = word.replace(/[^\wáéíóúñü]/gi, '').trim();
+                    // Contar frecuencia de cada etiqueta completa
+                    tagFrequency[tagName] = (tagFrequency[tagName] || 0) + 1;
 
-                        // Solo contar palabras con al menos 3 caracteres
-                        if (cleanWord.length >= 3) {
-                            tagFrequency[cleanWord] = (tagFrequency[cleanWord] || 0) + 1;
-                            totalWordsCount++;
-
-                            // Contar por origen
-                            if (tag.source === 'presentation') {
-                                presentationWordsCount++;
-                            } else {
-                                userWordsCount++;
-                            }
-
-                            // Guardar color si no existe
-                            if (!tagColors[cleanWord]) {
-                                tagColors[cleanWord] = tag.color;
-                            }
-                        }
-                    });
+                    // Guardar color si no existe
+                    if (!tagColors[tagName]) {
+                        tagColors[tagName] = tag.color;
+                    }
                 });
 
                 // Ordenar por frecuencia
@@ -598,10 +579,10 @@
                     .sort((a, b) => b.count - a.count);
 
                 // Actualizar stats
-                const totalTags = totalWordsCount; // Total de palabras contadas
-                const uniqueTags = tagArray.length; // Palabras únicas
-                const attendeesTags = userWordsCount; // Palabras de usuarios
-                const presentationsTagsCount = presentationWordsCount; // Palabras de ponencias
+                const totalTags = tagsData.length; // Total de etiquetas
+                const uniqueTags = tagArray.length; // Etiquetas únicas
+                const attendeesTags = userTags.length; // Etiquetas de usuarios
+                const presentationsTagsCount = presentationTags.length; // Etiquetas de ponencias
 
                 document.getElementById('total-tags').textContent = totalTags;
                 document.getElementById('unique-tags').textContent = uniqueTags;
