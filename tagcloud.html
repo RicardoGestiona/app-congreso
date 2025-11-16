@@ -678,9 +678,12 @@
                     // Calcular maxCount
                     const maxCount = tagArray[0]?.count || 0;
 
-                    // Separar en grupos: primeras 31 visibles, resto ocultas
-                    const visibleTags = tagArray.slice(0, 31);  // Etiquetas 1-31 (hasta "tributaria")
-                    const hiddenTags = tagArray.slice(31);      // Resto de etiquetas
+                    // Separar en grupos
+                    const group1 = tagArray.slice(0, 5);   // Posiciones 1-5
+                    const group2 = tagArray.slice(5, 11);  // Posiciones 6-11
+                    const group3 = tagArray.slice(11, 16); // Posiciones 12-16
+                    const visibleRest = tagArray.slice(16, 31);  // Posiciones 17-31 (visibles por defecto)
+                    const hiddenRest = tagArray.slice(31);       // Posiciones 32+ (ocultas, requieren "Ver todas")
 
                     // Función para generar HTML de etiqueta
                     function generateTagHTML(tag, index, globalIndex) {
@@ -715,19 +718,53 @@
                         `;
                     }
 
-                    // Generar HTML para etiquetas visibles (1-31)
-                    let tagsHTML = '<div class="visible-tags">';
-                    visibleTags.forEach((tag, idx) => {
-                        tagsHTML += generateTagHTML(tag, idx, idx);
-                    });
-                    tagsHTML += '</div>';
+                    // Generar HTML por grupos
+                    let tagsHTML = '';
 
-                    // Generar HTML para etiquetas ocultas (32+)
-                    if (hiddenTags.length > 0) {
+                    // Grupo 1 (1-5)
+                    if (group1.length > 0) {
+                        tagsHTML += `
+                            <div class="tag-group">
+                                ${group1.map((tag, idx) => generateTagHTML(tag, idx, idx)).join('')}
+                            </div>
+                        `;
+                    }
+
+                    // Grupo 2 (6-11)
+                    if (group2.length > 0) {
+                        tagsHTML += `
+                            <div class="tag-group">
+                                ${group2.map((tag, idx) => generateTagHTML(tag, idx, idx + 5)).join('')}
+                            </div>
+                        `;
+                    }
+
+                    // Grupo 3 (12-16)
+                    if (group3.length > 0) {
+                        tagsHTML += `
+                            <div class="tag-group">
+                                ${group3.map((tag, idx) => generateTagHTML(tag, idx, idx + 11)).join('')}
+                            </div>
+                        `;
+                    }
+
+                    // Grupo 4 - Etiquetas visibles por defecto (17-31)
+                    if (visibleRest.length > 0) {
+                        tagsHTML += `
+                            <div class="tag-group">
+                                ${visibleRest.map((tag, idx) => generateTagHTML(tag, idx, idx + 16)).join('')}
+                            </div>
+                        `;
+                    }
+
+                    // Etiquetas ocultas (32+) con botón "Ver todas"
+                    if (hiddenRest.length > 0) {
                         tagsHTML += '<div class="hidden-tags" id="hidden-tags" style="display: none;">';
-                        hiddenTags.forEach((tag, idx) => {
-                            tagsHTML += generateTagHTML(tag, idx, idx + 31);
-                        });
+                        tagsHTML += `
+                            <div class="tag-group">
+                                ${hiddenRest.map((tag, idx) => generateTagHTML(tag, idx, idx + 31)).join('')}
+                            </div>
+                        `;
                         tagsHTML += '</div>';
 
                         // Botón "Ver todas"
