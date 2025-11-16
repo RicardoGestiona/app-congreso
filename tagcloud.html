@@ -644,10 +644,10 @@
                 const attendeesTags = 1654; // FIJO: Mostrar siempre 1654 de asistentes
                 const presentationsTagsCount = presentationTags.length; // Etiquetas de ponencias
 
-                document.getElementById('total-tags').textContent = totalTags.toLocaleString('es-ES');
-                document.getElementById('unique-tags').textContent = uniqueTags.toLocaleString('es-ES');
-                document.getElementById('attendees-count').textContent = attendeesTags.toLocaleString('es-ES');
-                document.getElementById('presentations-count').textContent = presentationsTagsCount.toLocaleString('es-ES');
+                document.getElementById('total-tags').textContent = totalTags.toLocaleString('es-ES', {useGrouping: true});
+                document.getElementById('unique-tags').textContent = uniqueTags.toLocaleString('es-ES', {useGrouping: true});
+                document.getElementById('attendees-count').textContent = attendeesTags.toLocaleString('es-ES', {useGrouping: true});
+                document.getElementById('presentations-count').textContent = presentationsTagsCount.toLocaleString('es-ES', {useGrouping: true});
 
                 // Actualizar timestamp
                 updateTimestamp();
