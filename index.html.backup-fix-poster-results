@@ -228,6 +228,47 @@
             opacity: 0.9;
         }
 
+        /* Estilos para botones bloqueados */
+        .menu-option.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.7);
+            filter: grayscale(40%);
+        }
+
+        .menu-option.locked:hover {
+            transform: translateY(0);
+            box-shadow: var(--shadow-md);
+            border-color: transparent;
+        }
+
+        .menu-option.locked::before {
+            background: linear-gradient(90deg, #999 0%, #777 100%);
+        }
+
+        .menu-option.locked .icon {
+            opacity: 0.5;
+        }
+
+        .menu-option.locked:hover .icon {
+            transform: scale(1);
+        }
+
+        .locked-badge {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border: 2px solid #ffc107;
+        }
+
         .back-btn {
             background: #0B7A8F;
             color: white;
@@ -2885,16 +2926,24 @@
                     <p>Comparte tus pensamientos con la comunidad</p>
                 </div>
 
-                <div class="menu-option" onclick="showScreen('voting-screen')">
+                <div class="menu-option" id="voting-menu-btn" onclick="showScreen('voting-screen')">
                     <span class="icon">🗣️</span>
                     <h3>Votar ponencias</h3>
                     <p>Participa en las votaciones y elige tu opción favorita</p>
+                    <div class="locked-badge" style="display: none;">
+                        <span style="font-size: 24px;">🔒</span>
+                        <span style="font-size: 11px; margin-top: 5px;">Disponible el 6 de nov.</span>
+                    </div>
                 </div>
 
-                <div class="menu-option" onclick="showScreen('poster-voting-screen')">
+                <div class="menu-option" id="poster-voting-menu-btn" onclick="showScreen('poster-voting-screen')">
                     <span class="icon">📑</span>
                     <h3>Concurso de Posters</h3>
                     <p>Vota por los mejores posters del congreso</p>
+                    <div class="locked-badge" style="display: none;">
+                        <span style="font-size: 24px;">🔒</span>
+                        <span style="font-size: 11px; margin-top: 5px;">Disponible el 6 de nov.</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3711,6 +3760,130 @@
         const supabaseUrl = 'https://hipozwoqmmnotlhscfso.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcG96d29xbW1ub3RsaHNjZnNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxODI4MTUsImV4cCI6MjA3Nzc1ODgxNX0.GItdUiV31jgXF01-18AlPdw_VVxXWPNF93paapU5lmo';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // =====================================================
+        // CONFIGURACIÓN DE ACTIVACIÓN DE VOTACIONES
+        // =====================================================
+        // Fecha y hora de activación de las votaciones (6 de noviembre de 2025 a las 00:00)
+        const VOTING_ACTIVATION_DATE = new Date('2025-11-06T00:00:00');
+
+        // Función para verificar si las votaciones están activas
+        function areVotingsActive() {
+            const now = new Date();
+            return now >= VOTING_ACTIVATION_DATE;
+        }
+
+        // Función para obtener el tiempo restante hasta la activación
+        function getTimeUntilActivation() {
+            const now = new Date();
+            const diff = VOTING_ACTIVATION_DATE - now;
+
+            if (diff <= 0) {
+                return 'Las votaciones ya están activas';
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            if (days > 0) {
+                return `Las votaciones se activarán en ${days} día${days > 1 ? 's' : ''} y ${hours} hora${hours > 1 ? 's' : ''}`;
+            } else if (hours > 0) {
+                return `Las votaciones se activarán en ${hours} hora${hours > 1 ? 's' : ''} y ${minutes} minuto${minutes > 1 ? 's' : ''}`;
+            } else {
+                return `Las votaciones se activarán en ${minutes} minuto${minutes > 1 ? 's' : ''}`;
+            }
+        }
+
+        // Función para mostrar modal de votaciones bloqueadas
+        function showVotingLockedModal() {
+            const timeMessage = getTimeUntilActivation();
+            const activationDate = VOTING_ACTIVATION_DATE.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const modal = document.createElement('div');
+            modal.id = 'voting-locked-modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                padding: 20px;
+                animation: fadeIn 0.3s ease;
+            `;
+
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    border-radius: 15px;
+                    padding: 40px;
+                    max-width: 500px;
+                    width: 100%;
+                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+                    text-align: center;
+                    animation: slideUp 0.3s ease;
+                ">
+                    <div style="font-size: 80px; margin-bottom: 20px;">🔒</div>
+                    <h3 style="margin: 0 0 15px 0; color: #333; font-size: 24px;">Votaciones Temporalmente Bloqueadas</h3>
+                    <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                        Las votaciones de <strong>ponencias</strong> y <strong>pósters</strong> estarán disponibles a partir del:
+                    </p>
+                    <div style="
+                        background: linear-gradient(135deg, rgba(0, 217, 192, 0.1), rgba(0, 245, 224, 0.05));
+                        border: 2px solid #00D9C0;
+                        border-radius: 10px;
+                        padding: 20px;
+                        margin: 20px 0;
+                    ">
+                        <div style="font-size: 18px; font-weight: 600; color: #00D9C0; margin-bottom: 10px;">
+                            📅 ${activationDate}
+                        </div>
+                        <div style="font-size: 14px; color: #666;">
+                            ⏳ ${timeMessage}
+                        </div>
+                    </div>
+                    <p style="color: #999; font-size: 14px; margin-bottom: 25px;">
+                        Mientras tanto, puedes explorar la agenda, registrar tu asistencia y participar en otras actividades del congreso.
+                    </p>
+                    <button onclick="closeVotingLockedModal()" style="
+                        width: 100%;
+                        padding: 15px;
+                        background: linear-gradient(135deg, #00D9C0 0%, #00B8A3 100%);
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        font-weight: 500;
+                        transition: transform 0.2s;
+                    " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                        Entendido
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        // Función para cerrar el modal de votaciones bloqueadas
+        function closeVotingLockedModal() {
+            const modal = document.getElementById('voting-locked-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
 
         // Test de conexión inicial
         console.log('🔧 Inicializando Supabase...');
@@ -4589,6 +4762,14 @@
 
         // Función para cambiar de pantalla
         function showScreen(screenId) {
+            // Verificar si las votaciones están activas antes de permitir acceso
+            const votingScreens = ['voting-screen', 'poster-voting-screen'];
+            if (votingScreens.includes(screenId) && !areVotingsActive()) {
+                // Mostrar modal informativo
+                showVotingLockedModal();
+                return; // No cambiar de pantalla
+            }
+
             // Ocultar todas las pantallas
             const screens = document.querySelectorAll('.screen');
             screens.forEach(screen => screen.classList.remove('active'));
@@ -5388,25 +5569,57 @@
             return hashHex.substring(0, 16);
         }
 
-        // Lista de emails autorizados (whitelist)
-        // Emails en esta lista reciben un mensaje de bienvenida positivo
-        // y omiten las validaciones de emails sospechosos o personales
-        // IMPORTANTE: Los emails deben estar en minúsculas
-        const authorizedEmails = [
-            // Ejemplo de uso:
-            // 'juan.perez@espublico.com',
-            // 'maria.garcia@espublico.com',
-            // 'admin@congreso.com'
-        ];
+        // =====================================================
+        // SISTEMA DE WHITELIST - MIGRADO A SUPABASE
+        // =====================================================
+        // Los emails autorizados ahora están en la tabla 'authorized_emails' 
+        // en Supabase para mayor seguridad (no visibles en código fuente)
+        // Ver: authorized_emails_migration.sql
+
+        // Función para verificar si un email está autorizado (consulta a Supabase)
+        async function checkEmailAuthorized(email) {
+            try {
+                if (!email || email.trim() === '') {
+                    return false;
+                }
+
+                const emailLower = email.toLowerCase().trim();
+
+                // Consultar tabla authorized_emails en Supabase
+                const { data, error } = await supabaseClient
+                    .from('authorized_emails')
+                    .select('email, active')
+                    .eq('email', emailLower)
+                    .eq('active', true)
+                    .maybeSingle(); // Retorna null si no existe, en vez de error
+
+                if (error) {
+                    console.error('Error al verificar email autorizado:', error);
+                    return false;
+                }
+
+                // Si data existe y el email está activo, está autorizado
+                return !!data;
+
+            } catch (error) {
+                console.error('Error en checkEmailAuthorized:', error);
+                return false;
+            }
+        }
+
+        // Array legacy (ya no se usa, mantenido por compatibilidad)
+        const authorizedEmails = [];
+
 
         // Validar si el email parece sospechoso o no corporativo
-        function validateEmailQuality(email) {
+        async function validateEmailQuality(email) {
             const emailLower = email.toLowerCase();
             const domain = emailLower.split('@')[1];
             const localPart = emailLower.split('@')[0];
 
-            // Verificar primero si el email está en la whitelist
-            if (authorizedEmails.includes(emailLower)) {
+            // Verificar primero si el email está en la whitelist (Supabase)
+            const isAuthorized = await checkEmailAuthorized(emailLower);
+            if (isAuthorized) {
                 return {
                     valid: true,
                     type: 'authorized',
@@ -5558,7 +5771,7 @@
                     <div style="color: #666; font-size: 14px; line-height: 1.6;">
                         ${message}
                     </div>
-                    ${validationResult.type !== 'warning' ? `
+                    ${validationResult.type !== 'warning' && validationResult.type !== 'authorized' ? `
                     <div style="margin-top: 20px; display: flex; gap: 10px;">
                         <button onclick="closeEmailWarningModal(false)" style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px;">
                             Cambiar Email
@@ -5611,8 +5824,8 @@
                 return;
             }
 
-            // Validar calidad del email
-            const emailValidation = validateEmailQuality(email);
+            // Validar calidad del email (consulta a Supabase para whitelist)
+            const emailValidation = await validateEmailQuality(email);
 
             // Si el email está autorizado o requiere advertencia, mostrar modal
             if (emailValidation.type === 'authorized' || !emailValidation.valid || emailValidation.type === 'warning') {
@@ -6653,6 +6866,65 @@
                 }, 120000);
             }
         })();
+
+        // =====================================================
+        // INICIALIZACIÓN: Actualizar estado visual de botones de votación
+        // =====================================================
+        function updateVotingButtonsState() {
+            const votingBtn = document.getElementById('voting-menu-btn');
+            const posterVotingBtn = document.getElementById('poster-voting-menu-btn');
+
+            if (!areVotingsActive()) {
+                // Votaciones bloqueadas - aplicar estilos
+                if (votingBtn) {
+                    votingBtn.classList.add('locked');
+                    const badge = votingBtn.querySelector('.locked-badge');
+                    if (badge) badge.style.display = 'flex';
+                }
+
+                if (posterVotingBtn) {
+                    posterVotingBtn.classList.add('locked');
+                    const badge = posterVotingBtn.querySelector('.locked-badge');
+                    if (badge) badge.style.display = 'flex';
+                }
+
+                console.log('🔒 Votaciones bloqueadas hasta:', VOTING_ACTIVATION_DATE.toLocaleString('es-ES'));
+            } else {
+                // Votaciones activas - remover estilos de bloqueo
+                if (votingBtn) {
+                    votingBtn.classList.remove('locked');
+                    const badge = votingBtn.querySelector('.locked-badge');
+                    if (badge) badge.style.display = 'none';
+                }
+
+                if (posterVotingBtn) {
+                    posterVotingBtn.classList.remove('locked');
+                    const badge = posterVotingBtn.querySelector('.locked-badge');
+                    if (badge) badge.style.display = 'none';
+                }
+
+                console.log('✅ Votaciones activas desde:', VOTING_ACTIVATION_DATE.toLocaleString('es-ES'));
+            }
+        }
+
+        // Ejecutar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', updateVotingButtonsState);
+        } else {
+            updateVotingButtonsState();
+        }
+
+        // Verificar cada minuto si las votaciones se han activado
+        setInterval(() => {
+            const wasLocked = document.getElementById('voting-menu-btn')?.classList.contains('locked');
+            const shouldBeLocked = !areVotingsActive();
+
+            if (wasLocked && !shouldBeLocked) {
+                // Las votaciones acaban de activarse
+                updateVotingButtonsState();
+                console.log('🎉 ¡Las votaciones se han activado!');
+            }
+        }, 60000); // Revisar cada minuto
 
     </script>
 

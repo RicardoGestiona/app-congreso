@@ -1,0 +1,121 @@
+======================================================================
+ESTADÍSTICAS DE FRECUENCIAS
+======================================================================
+
+📊 RESUMEN
+   Etiquetas originales (total): 48374
+   Etiquetas filtradas: 31462
+   Etiquetas válidas (total): 16912
+   Etiquetas únicas: 5450
+   Promedio repeticiones: 3.1
+
+🔝 TOP 100 ETIQUETAS MÁS FRECUENTES
+----------------------------------------------------------------------
+     1. gestión                        :   161 veces
+     2. datos                          :    76 veces
+     3. ayuntamiento                   :    74 veces
+     4. administración                 :    71 veces
+     5. certificación                  :    61 veces
+     6. expediente                     :    56 veces
+     7. ciudadano                      :    54 veces
+     8. comunidad                      :    51 veces
+     9. sistema                        :    51 veces
+    10. proyecto                       :    50 veces
+    11. entidad                        :    48 veces
+    12. trámite                        :    45 veces
+    13. pago                           :    43 veces
+    14. tal                            :    40 veces
+    15. información                    :    39 veces
+    16. aplicación                     :    39 veces
+    17. sus                            :    38 veces
+    18. quiero                         :    38 veces
+    19. módulo                         :    37 veces
+    20. tramitación                    :    36 veces
+    21. nuestra                        :    35 veces
+    22. orden                          :    35 veces
+    23. compañeros                     :    34 veces
+    24. igual                          :    34 veces
+    25. trabajo                        :    33 veces
+    26. cuenta                         :    33 veces
+    27. caja                           :    33 veces
+    28. tareas                         :    33 veces
+    29. electrónica                    :    32 veces
+    30. viene                          :    32 veces
+    31. haciendo                       :    31 veces
+    32. registro                       :    31 veces
+    33. hacemos                        :    30 veces
+    34. comunicación                   :    30 veces
+    35. proceso                        :    30 veces
+    36. gestiona                       :    30 veces
+    37. área                           :    30 veces
+    38. poquito                        :    29 veces
+    39. recursos                       :    29 veces
+    40. mirar                          :    29 veces
+    41. cuadro                         :    29 veces
+    42. realmente                      :    28 veces
+    43. oficina                        :    28 veces
+    44. procedimiento                  :    27 veces
+    45. pasa                           :    27 veces
+    46. aplicaciones                   :    27 veces
+    47. permite                        :    27 veces
+    48. maría                          :    26 veces
+    49. seguir                         :    26 veces
+    50. queremos                       :    26 veces
+    51. expedientes                    :    26 veces
+    52. integración                    :    26 veces
+    53. primer                         :    25 veces
+    54. supuesto                       :    25 veces
+    55. falta                          :    25 veces
+    56. general                        :    25 veces
+    57. cual                           :    25 veces
+    58. administraciones               :    25 veces
+    59. ello                           :    24 veces
+    60. visto                          :    24 veces
+    61. pasado                         :    24 veces
+    62. fija                           :    24 veces
+    63. sentido                        :    23 veces
+    64. vemos                          :    23 veces
+    65. humanos                        :    23 veces
+    66. empezar                        :    23 veces
+    67. público                        :    23 veces
+    68. control                        :    23 veces
+    69. gastos                         :    23 veces
+    70. bastante                       :    23 veces
+    71. tarea                          :    23 veces
+    72. personal                       :    22 veces
+    73. quiere                         :    22 veces
+    74. vuestras                       :    22 veces
+    75. hacerlo                        :    22 veces
+    76. problemas                      :    22 veces
+    77. problema                       :    22 veces
+    78. funciona                       :    22 veces
+    79. digital                        :    22 veces
+    80. tenido                         :    22 veces
+    81. pagar                          :    22 veces
+    82. tienes                         :    22 veces
+    83. solicitud                      :    22 veces
+    84. tributaria                     :    22 veces
+    85. cálculo                        :    22 veces
+    86. obras                          :    22 veces
+    87. usuarios                       :    21 veces
+    88. hablar                         :    21 veces
+    89. nivel                          :    21 veces
+    90. empezamos                      :    21 veces
+    91. estado                         :    21 veces
+    92. número                         :    21 veces
+    93. anticipo                       :    21 veces
+    94. dinero                         :    21 veces
+    95. euros                          :    21 veces
+    96. partir                         :    21 veces
+    97. programa                       :    20 veces
+    98. especial                       :    20 veces
+    99. ponemos                        :    20 veces
+   100. sabéis                         :    20 veces
+
+📉 DISTRIBUCIÓN DE FRECUENCIAS
+----------------------------------------------------------------------
+   Palabras que aparecen 1 vez:     3083
+   Palabras que aparecen 2-5 veces:  1673
+   Palabras que aparecen 6-10 veces:   387
+   Palabras que aparecen 11-20 veces:   211
+   Palabras que aparecen >20 veces:    96

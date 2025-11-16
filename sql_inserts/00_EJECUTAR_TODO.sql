@@ -1,0 +1,21 @@
+-- =====================================================
+-- SCRIPT MAESTRO - EJECUTAR TODOS LOS ARCHIVOS
+-- =====================================================
+-- INSTRUCCIONES:
+-- 1. Abre cada archivo insert_tags_part_XX.sql
+-- 2. Copia y pega su contenido en el editor SQL de Supabase
+-- 3. Ejecuta cada uno en orden
+--
+-- ALTERNATIVA (si tienes acceso psql):
+-- psql -h <host> -U <user> -d <database>
+-- \i sql_inserts/insert_tags_part_01.sql
+-- \i sql_inserts/insert_tags_part_02.sql
+-- \i sql_inserts/insert_tags_part_03.sql
+-- \i sql_inserts/insert_tags_part_04.sql
+-- \i sql_inserts/insert_tags_part_05.sql
+-- \i sql_inserts/insert_tags_part_06.sql
+-- \i sql_inserts/insert_tags_part_07.sql
+-- \i sql_inserts/insert_tags_part_08.sql
+-- \i sql_inserts/insert_tags_part_09.sql
+-- \i sql_inserts/insert_tags_part_10.sql
+-- =====================================================

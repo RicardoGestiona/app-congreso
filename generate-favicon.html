@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Generate Favicon</title>
+</head>
+<body>
+    <h1>Generador de Favicon</h1>
+    <canvas id="canvas" width="128" height="128"></canvas>
+    <br>
+    <a id="download" download="favicon.png">Descargar favicon.png</a>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Fondo transparente
+        ctx.clearRect(0, 0, 128, 128);
+
+        // Dibujar emoji
+        ctx.font = '100px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('👋', 64, 64);
+
+        // Crear enlace de descarga
+        canvas.toBlob(function(blob) {
+            const url = URL.createObjectURL(blob);
+            document.getElementById('download').href = url;
+            document.getElementById('download').click();
+        });
+    </script>
+</body>
+</html>

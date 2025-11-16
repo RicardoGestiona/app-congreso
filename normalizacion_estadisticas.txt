@@ -1,0 +1,166 @@
+======================================================================
+ESTADÍSTICAS DE NORMALIZACIÓN (SINGULAR)
+======================================================================
+
+📊 RESUMEN
+   Etiquetas filtradas originales: 5553
+   Etiquetas normalizadas (únicas): 5037
+   Plurales convertidos a singular: 1055
+   Reducción total: 516 etiquetas
+   Tasa de reducción: 9.3%
+
+📝 EJEMPLOS DE CONVERSIONES (50 primeros)
+----------------------------------------------------------------------
+   abiertas                       → abierta
+   abiertos                       → abierto
+   acciones                       → accion
+   acompañantes                   → acompañante
+   acompañaros                    → acompañaro
+   acordaros                      → acordaro
+   acostumbrados                  → acostumbrado
+   actes                          → acte
+   actividades                    → actividade
+   actos                          → acto
+   actores                        → actor
+   actuaciones                    → actuacion
+   actualizaros                   → actualizaro
+   acuerdos                       → acuerdo
+   adaptados                      → adaptado
+   adeles                         → adel
+   administraciones               → administracion
+   administrativos                → administrativo
+   adquisiciones                  → adquisicion
+   afectados                      → afectado
+   agarridos                      → agarrido
+   agentes                        → agente
+   agobios                        → agobio
+   agradables                     → agradabl
+   agradeceros                    → agradecero
+   agradecidos                    → agradecido
+   aguas                          → agua
+   agénticas                      → agéntica
+   ajudicados                     → ajudicado
+   ajustarlos                     → ajustarlo
+   ajustes                        → ajuste
+   alegaciones                    → alegacion
+   alejadas                       → alejada
+   alianzas                       → alianza
+   altas                          → alta
+   alumnos                        → alumno
+   amigos                         → amigo
+   anexas                         → anexa
+   animales                       → animal
+   anonimizados                   → anonimizado
+   anteriores                     → anterior
+   anticiparnos                   → anticiparno
+   anticiparos                    → anticiparo
+   anticipos                      → anticipo
+   antiguipos                     → antiguipo
+   anuncios                       → anuncio
+   anécdotas                      → anécdota
+   anímaros                       → anímaro
+   apartados                      → apartado
+   apenas                         → apena
+
+✅ MUESTRA DE 100 ETIQUETAS FINALES (alfabético)
+----------------------------------------------------------------------
+     1. 24x7
+     2. 30-70
+     3. 4-3
+     4. abajo
+     5. abandonaba
+     6. abandonando
+     7. abarcar
+     8. abierta
+     9. abierto
+    10. abonado
+    11. abone
+    12. abra
+    13. abre
+    14. abrimos
+    15. abrir
+    16. abrirse
+    17. abris
+    18. abrió
+    19. absoluta
+    20. absolutamente
+    21. aburrida
+    22. aburrido
+    23. aburrir
+    24. aburrirse
+    25. abusabilidad
+    26. acaba
+    27. acababa
+    28. acabado
+    29. acabamos
+    30. acaban
+    31. acabando
+    32. acabar
+    33. acabaremos
+    34. acabo
+    35. acabé
+    36. académica
+    37. académico
+    38. acaso
+    39. acceder
+    40. accesibilidad
+    41. accesible
+    42. acceso
+    43. accion
+    44. acción
+    45. aceit
+    46. acelerando
+    47. acende
+    48. acerca
+    49. acercamos
+    50. acero
+    51. acerque
+    52. acerrar
+    53. aclamación
+    54. aclarar
+    55. aclaremos
+    56. acogida
+    57. acompañante
+    58. acompañaro
+    59. acordamos
+    60. acordaro
+    61. acordarte
+    62. acordáis
+    63. acordéis
+    64. acortará
+    65. acostado
+    66. acostumbrada
+    67. acostumbrado
+    68. acta
+    69. acte
+    70. actitud
+    71. activa
+    72. activación
+    73. activado
+    74. activar
+    75. activará
+    76. actividad
+    77. actividade
+    78. activo
+    79. acto
+    80. actor
+    81. actuacion
+    82. actuado
+    83. actual
+    84. actualice
+    85. actualidad
+    86. actualiza
+    87. actualizada
+    88. actualizado
+    89. actualizan
+    90. actualizaro
+    91. actualizarse
+    92. actualizándolo
+    93. actualmente
+    94. actuar
+    95. actuará
+    96. actúe
+    97. acuerdo
+    98. acumulada
+    99. acuse
+   100. adapta

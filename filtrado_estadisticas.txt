@@ -1,0 +1,204 @@
+======================================================================
+ESTADÍSTICAS DE FILTRADO DE ETIQUETAS
+======================================================================
+
+📊 RESUMEN GENERAL
+   Total etiquetas originales: 48374
+   Etiquetas válidas (únicas): 5553
+   Tasa de retención: 11.5%
+
+❌ ETIQUETAS FILTRADAS
+   Stopwords: 26527
+   Genéricas: 1584
+   Muy cortas: 556
+   Caracteres inválidos: 152
+   Duplicados: 14002
+
+🔝 TOP 50 STOPWORDS MÁS FRECUENTES (filtradas)
+----------------------------------------------------------------------
+   que                  :  2623 veces
+   de                   :  2573 veces
+   la                   :  1488 veces
+   el                   :  1120 veces
+   en                   :  1068 veces
+   es                   :   842 veces
+   un                   :   780 veces
+   no                   :   758 veces
+   lo                   :   685 veces
+   una                  :   545 veces
+   se                   :   487 veces
+   los                  :   479 veces
+   para                 :   446 veces
+   con                  :   423 veces
+   las                  :   380 veces
+   por                  :   377 veces
+   pero                 :   298 veces
+   me                   :   286 veces
+   ya                   :   277 veces
+   más                  :   274 veces
+   porque               :   272 veces
+   aquí                 :   264 veces
+   pues                 :   262 veces
+   como                 :   254 veces
+   si                   :   251 veces
+   todo                 :   235 veces
+   este                 :   233 veces
+   nos                  :   229 veces
+   yo                   :   215 veces
+   esto                 :   209 veces
+   hacer                :   193 veces
+   os                   :   185 veces
+   muy                  :   182 veces
+   va                   :   179 veces
+   vamos                :   175 veces
+   hay                  :   172 veces
+   ha                   :   171 veces
+   también              :   169 veces
+   todos                :   160 veces
+   entonces             :   156 veces
+   está                 :   145 veces
+   hemos                :   145 veces
+   esta                 :   125 veces
+   tiene                :   120 veces
+   cuando               :   118 veces
+   su                   :   116 veces
+   nosotros             :   112 veces
+   ahora                :   106 veces
+   poco                 :   103 veces
+   sí                   :   103 veces
+
+🔝 TOP 30 PALABRAS GENÉRICAS MÁS FRECUENTES (filtradas)
+----------------------------------------------------------------------
+   bueno                :   201 veces
+   parte                :   103 veces
+   forma                :    81 veces
+   momento              :    81 veces
+   día                  :    78 veces
+   año                  :    75 veces
+   hecho                :    75 veces
+   caso                 :    67 veces
+   años                 :    59 veces
+   ejemplo              :    55 veces
+   verdad               :    48 veces
+   persona              :    47 veces
+   personas             :    44 veces
+   gente                :    44 veces
+   mundo                :    41 veces
+   primera              :    37 veces
+   manera               :    36 veces
+   días                 :    35 veces
+   tipo                 :    32 veces
+   primero              :    24 veces
+   nuevo                :    23 veces
+   punto                :    22 veces
+   lugar                :    17 veces
+   nueva                :    17 veces
+   cierto               :    15 veces
+   parece               :    13 veces
+   puntos               :    13 veces
+   buenos               :    11 veces
+   nuevas               :    11 veces
+   promociones          :    10 veces
+
+✅ MUESTRA DE 100 ETIQUETAS VÁLIDAS (alfabético)
+----------------------------------------------------------------------
+     1. 24x7
+     2. 30-70
+     3. 4-3
+     4. abajo
+     5. abandonaba
+     6. abandonando
+     7. abarcar
+     8. abierta
+     9. abiertas
+    10. abierto
+    11. abiertos
+    12. abonado
+    13. abone
+    14. abra
+    15. abre
+    16. abrimos
+    17. abrir
+    18. abrirse
+    19. abris
+    20. abrió
+    21. absoluta
+    22. absolutamente
+    23. aburrida
+    24. aburrido
+    25. aburrir
+    26. aburrirse
+    27. abusabilidad
+    28. acaba
+    29. acababa
+    30. acabado
+    31. acabamos
+    32. acaban
+    33. acabando
+    34. acabar
+    35. acabaremos
+    36. acabo
+    37. acabé
+    38. académica
+    39. académico
+    40. acaso
+    41. acceder
+    42. accesibilidad
+    43. accesible
+    44. acceso
+    45. acciones
+    46. acción
+    47. aceit
+    48. acelerando
+    49. acende
+    50. acerca
+    51. acercamos
+    52. acero
+    53. acerque
+    54. acerrar
+    55. aclamación
+    56. aclarar
+    57. aclaremos
+    58. acogida
+    59. acompañantes
+    60. acompañaros
+    61. acordamos
+    62. acordaros
+    63. acordarte
+    64. acordáis
+    65. acordéis
+    66. acortará
+    67. acostado
+    68. acostumbrada
+    69. acostumbrados
+    70. acta
+    71. actes
+    72. actitud
+    73. activa
+    74. activación
+    75. activado
+    76. activar
+    77. activará
+    78. actividad
+    79. actividades
+    80. activo
+    81. acto
+    82. actores
+    83. actos
+    84. actuaciones
+    85. actuado
+    86. actual
+    87. actualice
+    88. actualidad
+    89. actualiza
+    90. actualizada
+    91. actualizado
+    92. actualizan
+    93. actualizaros
+    94. actualizarse
+    95. actualizándolo
+    96. actualmente
+    97. actuar
+    98. actuará
+    99. actúe
+   100. acuerdo

@@ -5392,11 +5392,497 @@
         // Emails en esta lista reciben un mensaje de bienvenida positivo
         // y omiten las validaciones de emails sospechosos o personales
         // IMPORTANTE: Los emails deben estar en minúsculas
+        // TOTAL: 489 emails autorizados del congreso
         const authorizedEmails = [
-            // Ejemplo de uso:
-            // 'juan.perez@espublico.com',
-            // 'maria.garcia@espublico.com',
-            // 'admin@congreso.com'
+            'cgomez@dipcas.es',
+            'vgarcia@diputacionalicante.es',
+            'abartolome@torrevieja.eu',
+            'begona.perello@parets.cat',
+            'mleon@betera.es',
+            'mefadrique@dipsegovia.es',
+            'susana@apfsc.es',
+            'yolanda.salguero@ulpgc.es',
+            'luisdalmau@dpteruel.es',
+            'carles@bell-lloc.cat',
+            'dgmoreno@rivasciudad.es',
+            'sergio.pombrol@dpz.es',
+            'toniserra@santantoni.net',
+            'pericas@felanitx.org',
+            'lorenzo.sanchez@valdepenas.es',
+            'idiaz@ayto-velilla.es',
+            'etinto@cunit.cat',
+            'jmmegino@soria.es',
+            'cforjan@ccontasgalicia.es',
+            'nvera@fraga.org',
+            'egirabent@llinarsdelvalles.cat',
+            'dgarcia@cortesaragon.es',
+            'secretariageneral2@gibraleon.com',
+            'mssgranada@gmail.com',
+            'mingles@zaragoza.es',
+            'jlopezs@zaragoza.es',
+            'acaballero@cabildodelanzarote.com',
+            'lvilapla@diputacionalicante.es',
+            'mbejarano@tomares.es',
+            'michaelrh@guiadeisora.org',
+            'jklarra@galdakao.net',
+            'alfonso.pelaez@aytoalmonte.es',
+            'davida.res@sarria.gal',
+            'elenamartin@arrecife.es',
+            'aleronda@gmail.com',
+            'egonzalez@puertollano.es',
+            'informatica@gibraleon.com',
+            'informatica@aytogines.es',
+            'informatica@buenavistadelnorte.es',
+            'jmuro@zaragoza.es',
+            'alberto.farre@gmail.com',
+            'rtornos@zaragoza.es',
+            'claudio@almoradi.es',
+            'ruizrr@sentmenat.cat',
+            'jose.gabriel.piera@gmail.com',
+            'jesusgarciasanzsm@gmail.com',
+            'jmtoledo@yahoo.com',
+            'izamora@rivasciudad.es',
+            'juan.jimeno@valdepenas.es',
+            'antonioase@gmail.com',
+            'ibanbermudez@cabildodelanzarote.com',
+            'tomas.avila@ayamonte.es',
+            'archivo@santjoandalacant.es',
+            'agonzalez@lepe.es',
+            'manuelcabelloruiz1@gmail.com',
+            'veronica.garcia@ayto-salobrena.es',
+            'joaquin.valls@borriol.es',
+            'ricardobernal@ayto-camas.org',
+            'carles.ribera@lesfranqueses.cat',
+            'gchiner@lanucia.es',
+            'ematu@benicassim.org',
+            'gilgutierrezirene@gmail.com',
+            'carlos.beltran@burriana.es',
+            'jose.sanlorenzo@nules.es',
+            'smanzano@alcora.org',
+            'amanda.hormigo@eivissa.es',
+            'rafaortega@costatropical.es',
+            'jalfonso@sumagrup.com',
+            'cmayol@sapobla.cat',
+            'dleon@guimar.es',
+            'miguel@ayuntamientodealfacar.es',
+            'ccalcaterra@apmotril.com',
+            'ramon@ayto-sanfulgencio.es',
+            'mutrilla@soria.es',
+            'clopes@moia.cat',
+            'gonzalez.al77@gmail.com',
+            'mmateo@islacristina.org',
+            'archivo@mancolacanal.es',
+            'lvidal@castello2000.cat',
+            'marta@castello2000.cat',
+            'gverdu@petrer.es',
+            'eaguilar@petrer.es',
+            'anamarina.lazaro@castello.es',
+            'carrysoft@gmail.com',
+            'informatica@lapalmadelcondado.org',
+            'aldoduranacc@gmail.com',
+            'fcampos@puertogijon.es',
+            'driutord@alcudia.net',
+            'erincon@alcudia.net',
+            'informatica@vegasdelgenil.es',
+            'gpenaquil@yahoo.es',
+            'juanb@alfafar.es',
+            'lmarti@puigcerda.cat',
+            'pedro.jara@lastorresdecotillas.es',
+            'albertobravoqueipodellano@hotmail.com',
+            'informatica@ogijares.org',
+            'lchacon@puertocadiz.com',
+            'elisabet.rodriguez@ulpgc.es',
+            'mpazadmon@ayto-villalbilla.org',
+            'informatica@alhendin.es',
+            'sprat@ccsegarra.cat',
+            'jgarciam@dipsegovia.es',
+            'oficinatecnica@consorciodolouro.es',
+            'acadenas@movistar.es',
+            'cmartinez@santjaumedelsdomenys.cat',
+            'informatica@oporrino.org',
+            'ecrespo@sgise.es',
+            'iborrego@aytotudela.es',
+            'odile.leon.sosa@gmail.com',
+            'gloria.leon@puertoscanarios.es',
+            'fatima@dtinformatica.info',
+            'javi.soro@gmail.com',
+            'cmones@vinaros.es',
+            'mdrodriguez@puertogijon.es',
+            'jvoller@teuladamoraira.org',
+            'mtlabrador@dipsegovia.es',
+            'marta.ferreira@ccuentas.es',
+            'mmiguelg@aytoguadalajara.es',
+            'lola.ramirez@alcalalareal.es',
+            'marcos.colmenero@villarrubiadelosojos.es',
+            'intervencion@ayunzuera.com',
+            'secretaria@ayunzuera.com',
+            'franciscogh@guiadeisora.org',
+            'josemaria.gomezmartinez@elpuertodesantamaria.es',
+            'miguelangel.navarrosantamaria@elpuertodesantamaria.es',
+            'ricardo.malo@gmail.com',
+            'rovira_emi@gva.es',
+            'maytera3@gmail.com',
+            'rrivilla@sgise.es',
+            'mzaera@torrent.es',
+            'patriciarosario.soriamartindelavega@elpuertodesantamaria.es',
+            'nuria.martinez@valdepenas.es',
+            'screspo@lasrozas.es',
+            'josegutierrez@maracena.es',
+            'esperanza.torres@eivissa.es',
+            'pere.llofriu@emt.palma.cat',
+            'informaticaweb@aytorota.es',
+            'mariaj.garcia@ayto-alcantarilla.es',
+            'fgarciacascales@ayto-alcantarilla.es',
+            'javier.fabelloruiz@elpuertodesantamaria.es',
+            'ymaldonado@apmotril.com',
+            'bonets@torrent.es',
+            'informatica@aytocuellar.es',
+            'jorgeivars@gmail.com',
+            'informatica@aytoconsuegra.es',
+            'jdiazgh@gmail.com',
+            'mjjimenez@lasrozas.es',
+            'ebenito@urbanismolalaguna.es',
+            'dhernandez@urbanismolalaguna.es',
+            'a.sobrin@ciuden.es',
+            'j.lopez@ciuden.es',
+            'albertorosells@gmail.com',
+            'rafaelcintrano@estepona.es',
+            'ferran.ros@carcaixent.es',
+            'mateu.huerta@felanitx.org',
+            'mtcuesta@lasrozas.es',
+            'djarque@gmail.com',
+            'mparicio@dipcas.es',
+            'javier.tornador@nules.es',
+            'lozanoda@canovesisamalus.cat',
+            'fran.santos@ayto-torremolinos.es',
+            'palmiralimia@ayto-camas.org',
+            'cg86_sev@hotmail.com',
+            'mjimeneg@diputacionalicante.es',
+            'informatica4@santapola.es',
+            'luis.rosello@carlet.es',
+            'secretaria-gloria@ayto-torrelodones.org',
+            'alopezci@vicar.es',
+            'crosa@gsccanarias.com',
+            'jrobaina@gmail.com',
+            'gromero@amorebieta.eus',
+            'mcuesta@noain.es',
+            'ramon.martinez@colmenardeoreja.com',
+            'david.martinez@colmenardeoreja.com',
+            'jsauragargallo@gmail.com',
+            'alonso_ana@hotmail.com',
+            'pcabrera@tinajo.es',
+            'mdelucas@diputacionalicante.es',
+            'juanguga@gmail.com',
+            'jmartinez@adlsantapola.es',
+            'jperezma@vicar.es',
+            'guzman.tortosa@gmail.com',
+            'gtur@calp.es',
+            'jaabadmi@ayuntamientoviator.org',
+            'bernimanza@alhaurinelgrande.es',
+            'carol.ciordia@gmail.com',
+            'earnabat@bellvei.cat',
+            'mquesada@constanti.cat',
+            'tributos@alhaurinelgrande.net',
+            'colladoga@badiadelvalles.net',
+            'e.aguilar@antifraudeandalucia.es',
+            'rramal@santjaume.cat',
+            'david.gonzalez.arq@gmail.com',
+            'ester_46_97@hotmail.com',
+            'estherzgz322@hotmail.com',
+            'jaballesteros@dipujaen.es',
+            'mamunoz@dipujaen.es',
+            'aznarmf@arenysdemar.cat',
+            'ilarroya@constanti.cat',
+            'alcas@sumagrup.com',
+            'informatica@ayto-launion.org',
+            'rmacia@diputacionalicante.es',
+            'ammcarlet@gmail.com',
+            'csuarez@energiagrancanaria.com',
+            'alozano@energiagrancanaria.com',
+            'anaisabel.gonzalez@dipujaen.es',
+            'lucia.lucas@dipujaen.es',
+            'secretariageneral@canetdenberenguer.es',
+            'aleoreg@gesplan.es',
+            'secretaria@aytochella.com',
+            'marivigranero@gmail.com',
+            's.tejeraremax@gmail.com',
+            'eutilopez@martorell.cat',
+            'pedro.cpd@marbella.es',
+            'danielnagore@marbella.es',
+            'reinoso@adra.es',
+            'administracion2@energiagrancanaria.com',
+            'iberna@diputacionalicante.es',
+            'gmerida@elhierro.es',
+            'juanma.vinuesa@alcaladexivert.es',
+            'amorillo@dipujaen.es',
+            'mabaco@dipujaen.es',
+            'alicia.castellet@cabanes.es',
+            'informatica@villacarrillo.es',
+            'jam.informatico@almendralejo.es',
+            'rafael.flores@almendralejo.es',
+            'cga.ofo@almendralejo.es',
+            'jperea@betera.es',
+            'mvazquez@vera.es',
+            'fflores@interior.es',
+            'mbarragan@interior.es',
+            'ibl.secretaria@almendralejo.es',
+            'anacasablanca@almendralejo.es',
+            'alejandroruizizquierdo@gmail.com',
+            'jesus.martinez@parets.cat',
+            'mavi6972@hotmail.com',
+            'adelgado@camaratenerife.es',
+            'secretaria@guadarrama.es',
+            'recaudacion3@guadarrama.es',
+            'jesus.romero@aytoalmonte.es',
+            'esegura@marbella.es',
+            'luispartida@marbella.es',
+            'dsacristan@dipsegovia.es',
+            'agarcia@dipsegovia.es',
+            'sergio.hidalgo@aytolarinconada.es',
+            'oscarferrando@alaquas.org',
+            'informatica3@morondelafrontera.es',
+            'informatica2@morondelafrontera.es',
+            'sebastiaramis31@gmail.com',
+            'aferreras@dipsegovia.es',
+            'jsanz@dipsegovia.es',
+            'aodl@alcarras.cat',
+            'bfromage@santjaume.cat',
+            'olga.ibanez@palamos.cat',
+            'rconde@udalermua.net',
+            'mgutierrez@udalermua.net',
+            'pedro.martin@alcaudete.es',
+            'informatica@bocema.org',
+            'aforcadell@alcanar.cat',
+            'mvillar@bilbaoport.eus',
+            'informatica@valdejalon.es',
+            'cargente@aytoalgete.com',
+            'arroyo.schnell@gmail.com',
+            'informatica@ayto-socuellamos.es',
+            'ibernal@zaragoza.es',
+            'morales.gj@gmail.com',
+            'web@mariadehuerva.net',
+            'smartinez@nostraigua.cat',
+            'vmartinez2791@gmail.com',
+            'tecnico@crargos.org',
+            'storrell@ginestar.cat',
+            'informatica@caspe.es',
+            'urbanismobormujos@gmail.com',
+            'mpalominopadilla@hotmail.com',
+            'aarostegui@bilbaoport.eus',
+            'jose.villaescusa@nules.es',
+            'alfonso.dominguez@lagunadeduero.org',
+            'rubenanido@concellodemonforte.com',
+            'soterasbm@ajpiera.cat',
+            'vilamajobe@ajpiera.cat',
+            'padronhabitantes@villamurieldecerrato.es',
+            'administraciongeneral@villamurieldecerrato.es',
+            'enriquecarlosbc@gmail.com',
+            'programacion@nijar.es',
+            'jrcerced@dpz.es',
+            'aimorao@orihuela.es',
+            'elena.fernandez@bilbaoport.eus',
+            'sleon@bilbaoport.eus',
+            'alberto.manzanedo@zalla.eus',
+            'amassot@andratx.es',
+            'informatica.tecnico@algeciras.es',
+            'victormorales@algeciras.es',
+            'borjalp.sg@gmail.com',
+            'psanchez@mairenadelalcor.es',
+            'jromero@mairenadelalcor.es',
+            'smauri@mairenadelalcor.es',
+            'emilio.delrio@puertoreal.es',
+            'jsantamaria@amorebieta.eus',
+            'aballester@orihuela.es',
+            'xoan.gomez@tomino.gal',
+            'jvalencia@arrigorriaga.eus',
+            'valmenar@canetdenberenguer.es',
+            'fernando.peiro@gandia.org',
+            '18laura.vizcaino@gmail.com',
+            'andrea92zgz@gmail.com',
+            'jlsaez@cofrm.com',
+            'humberamo@gmail.com',
+            'elopez@villardelarzobispo.es',
+            'avalenzu@aytomengibar.com',
+            'jceacero@aytomengibar.com',
+            'chary.zorrero@gmail.com',
+            'palma.fernandez@mairenadelaljarafe.org',
+            'lola.gandarias@mairenadelaljarafe.org',
+            'leondevalladares@gmail.com',
+            'payueta@tvcp.eus',
+            'jmcabrera@grancanariadeportes.com',
+            'secretario@aguilardecampoo.es',
+            'ruben.pascual@marbella.es',
+            'arannart@vielha-mijaran.org',
+            'informatica@ponteareas.gal',
+            'mmperez@guimar.es',
+            'rocio.serrano@mairenadelaljarafe.org',
+            'carlos.alvarez@mairenadelaljarafe.org',
+            'laura.garcia@mairenadelaljarafe.org',
+            'csorias@zaragoza.es',
+            'alicia@tvcp.eus',
+            'ibilbao@getxo.eus',
+            'tolobaleal@yahoo.es',
+            'mfrancocasado@gmail.com',
+            'canalperezsofia@gmail.com',
+            'jacarrasco@dipujaen.es',
+            'adri.cuo@gmail.com',
+            'jairourbanonieto@gmail.com',
+            'tic@ribadedeva.es',
+            'david.albiach@puertoreal.es',
+            'dani.fuste@urgell.cat',
+            'maluz.esteban@zamora.es',
+            'ffernandez@vandellos-hospitalet.cat',
+            'anama@adeje.es',
+            'andreamg@adeje.es',
+            'juanvan@aguasgrancanaria.com',
+            'carmelo.santana@aguasgrancanaria.com',
+            'joaquin.tribaldos@fecyt.es',
+            'fernando.santamaria@fecyt.es',
+            'oscar.ramos@fecyt.es',
+            'maurifll@argentona.cat',
+            'msubirats@altafulla.cat',
+            'informatica@ayora.es',
+            'tesoreria@aguilardecampoo.es',
+            'intervencion@aguilardecampoo.es',
+            'mpaz.garcia@ayto-daganzo.org',
+            'aesteban@derio.eus',
+            'francisco.diaz@hospitalprovincial.es',
+            'raul.jimenez@hospitalprovincial.es',
+            'aduarte@mijas.es',
+            'rmuniz@mijas.es',
+            'tcliment@finestrat.org',
+            'administrador@pinos-puente.org',
+            'mc.garcia@acosol.es',
+            'pablo.la@live.com',
+            'mikel@acoa-ake.org',
+            'rodriguezmja@elpra.cat',
+            'gsoll@aytoguadalajara.es',
+            'iliron@aytoguadalajara.es',
+            'tmartina@aytoguadalajara.es',
+            'cllorca@finestrat.org',
+            'informatica@lapobladefarnals.es',
+            'secretaria@lapobladefarnals.es',
+            'arxiu@lesfranqueses.cat',
+            'secretaria.general@campillos.es',
+            'diegogallardoramirez@gmail.com',
+            'llobregatfa@diba.cat',
+            'laura.as@guillena.org',
+            'jvalseca@gmail.com',
+            'lnavarro@cunit.cat',
+            'xribas@santacristina.cat',
+            'sdurantez@cunit.cat',
+            'perezdr@elprat.cat',
+            'serracj@abrera.cat',
+            'claudiahernandez@consorcidemuseus.es',
+            'rosariocampos@consorcidemuseus.es',
+            'sabat@elprat.cat',
+            'asala@begur.cat',
+            'alonsroca@hotmail.com',
+            'bilbeny@elprat.cat',
+            'antoniovazqueztristan@laalgaba.es',
+            'nadalsf@calaf.cat',
+            'carlos.medina@plocan.eu',
+            'alfredo.sosa@plocan.eu',
+            'dep.informatica@albatera.org',
+            'evam.almela@lastorresdecotillas.es',
+            'perezsd@elprat.cat',
+            'macapo@alcudia.net',
+            'ivan.informatica@gandia.org',
+            'javier.tur@eivissa.es',
+            'antoniopuertas@estepona.es',
+            'scleon@jodar.es',
+            'bteran@getxo.eus',
+            'mcarmen.perezserrano@valdepenas.es',
+            'ana.castillo@castello.es',
+            'amonerris@adlsantapola.es',
+            'tmunoz@ccbergueda.cat',
+            'sergio.ayala@eivissa.es',
+            'jgonzacr@vicar.es',
+            'orestes_montero@hotmail.com',
+            'secretaria-esther@ayto-torrelodones.org',
+            'apujals@vila-seca.cat',
+            'personal.fsoler@torrevieja.eu',
+            'm.garcia@antifraudeandalucia.es',
+            'pamela.munoz@puertollano.es',
+            'luis.acevedo@diaple.com',
+            'mruiz@puertollano.es',
+            'josemiguel.garcia@castello.es',
+            'ibilbao@amorebieta.eus',
+            'jmserna@espublico.com',
+            'jlgarcia@espublico.com',
+            'albert.lopez@ecityclic.com',
+            'jdelaguardia@espublico.com',
+            'mvazquez@espublico.com',
+            'racande@gmail.com',
+            'csanchez@espublico.com',
+            'abeltran@espublico.com',
+            'ainfantes@espublico.com',
+            'aquintero@espublico.com',
+            'xpacheco@ecityclic.com',
+            'mgonzalez@espublico.com',
+            'bcaparros@espublico.com',
+            'vborobia@espublico.com',
+            'ambernal@espublico.com',
+            'vcontreras@espublico.com',
+            'jmestres@espublico.com',
+            'jageraldes@espublico.com',
+            'oruiz@ecityclic.com',
+            'rpenalver@espublico.com',
+            'certificaciongestiona@espublico.com',
+            'ppuertolas@espublico.com',
+            'mbaeta@espublico.com',
+            'edieguez@espublico.com',
+            'lmartinez@espublico.com',
+            'mllorente@espublico.com',
+            'jgarciaaraez@espublico.com',
+            'pmartinez@espublico.com',
+            'mgalvez@espublico.com',
+            'rmestre@espublico.com',
+            'jmjuan@espublico.com',
+            'eserrano@espublico.com',
+            'cpenalver@espublico.com',
+            'lalvarez@espublico.com',
+            'lgalan@espublico.com',
+            'fpalacio@espublico.it',
+            'malarraga@espublico.com',
+            'jgracia@espublico.com',
+            'cgimeno@espublico.com',
+            'jfont@ecityclic.com',
+            'aquintano@espublico.com',
+            'sberce@espublico.com',
+            'mehernandez@espublico.com',
+            'aiglesias@ecityclic.com',
+            'lzamora@espublico.com',
+            'mfernandez@espublico.com',
+            'pedrojmartincano@gmail.com',
+            'rmalo@zaragozadinamica.es',
+            'mariavc920@gmail.com',
+            'miguel.moline@gmail.com',
+            'pedro-jara@lastorresdecotillas.es',
+            'etorresferrer@gmail.com',
+            'vmartinez@nostraigua.cat',
+            'faznar79@gmail.com',
+            'secretaria@aytochella.es',
+            'secretaria@navarres.es',
+            'jlsaez@jlsaez.es',
+            'mfernandez@aytogines.es',
+            'amunoz@aytogines.es',
+            'dgalindo@amsystem.es',
+            'roc.villarreal@gmail.com',
+            'jijo523@gmail.com',
+            'administracion@aytoperalta.com',
+            'francisco.soler.ramirez@gmail.com',
+            'secretario@aytoescorial.org',
+            'ngomez@ccbergueda.cat',
+            'zaeraf@torrent.es',
+            'gmanasux@vera.es',
+            'joaquin.tribados@fecyt.es',
+            'juanvb01@gmail.com',
+            'jklarra@galdakao.eus',
+            'carmenteresagonzalez@guiadeisora.org',
+            'encarna@alfafar.es',
+            'dmarquinez@cunit.cat',
+            'sdursantez@cunit.cat'
         ];
 
         // Validar si el email parece sospechoso o no corporativo

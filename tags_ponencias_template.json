@@ -1,0 +1,38 @@
+[
+  {
+    "name": "inteligencia artificial",
+    "description": "Aplicaciones de IA en el sector público",
+    "color": "#FF6F00",
+    "presentation": "Ponencia 1 - Título de la ponencia"
+  },
+  {
+    "name": "machine learning",
+    "description": "Modelos de ML para optimización de procesos",
+    "color": "#E65100",
+    "presentation": "Ponencia 1 - Título de la ponencia"
+  },
+  {
+    "name": "transformación digital",
+    "description": "Digitalización de servicios públicos",
+    "color": "#4ECDC4",
+    "presentation": "Ponencia 2 - Título de la ponencia"
+  },
+  {
+    "name": "ciberseguridad",
+    "description": "Seguridad en infraestructuras críticas",
+    "color": "#FF0000",
+    "presentation": "Ponencia 2 - Título de la ponencia"
+  },
+  {
+    "name": "big data",
+    "description": "Análisis de datos masivos en gobierno",
+    "color": "#45B7D1",
+    "presentation": "Ponencia 3 - Título de la ponencia"
+  },
+  {
+    "name": "cloud computing",
+    "description": "Migración a la nube en administración pública",
+    "color": "#0089D6",
+    "presentation": "Ponencia 3 - Título de la ponencia"
+  }
+]
