@@ -15,7 +15,7 @@ SELECT
 FROM tags
 GROUP BY source;
 
--- Paso 2: Generar 1750 etiquetas de usuarios (punto medio entre 1500-2000)
+-- Paso 2: Generar 1654 etiquetas de usuarios
 -- Usando distribución proporcional de las etiquetas de presentaciones
 WITH presentation_distribution AS (
     SELECT
@@ -31,8 +31,8 @@ weighted_tags AS (
         name,
         frequency,
         percentage,
-        -- Calcular cuántas veces debe aparecer en las 1750 etiquetas de usuario
-        GREATEST(1, ROUND((percentage / 100.0) * 1750))::integer as user_occurrences
+        -- Calcular cuántas veces debe aparecer en las 1654 etiquetas de usuario
+        GREATEST(1, ROUND((percentage / 100.0) * 1654))::integer as user_occurrences
     FROM presentation_distribution
 )
 INSERT INTO tags (name, source, description, color, created_at)
