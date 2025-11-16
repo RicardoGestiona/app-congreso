@@ -141,6 +141,49 @@
             min-height: 500px;
         }
 
+        /* Botón Ver Todas */
+        .show-all-button {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid hsl(var(--border));
+        }
+
+        .btn-show-all {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: hsl(var(--primary));
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        }
+
+        .btn-show-all:hover {
+            background: hsl(174 100% 38%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .btn-show-all:active {
+            transform: translateY(0);
+        }
+
+        .hidden-tags {
+            display: none;
+        }
+
+        .hidden-tags.show {
+            display: flex;
+        }
+
         /* Tags Container - Grupos separados */
         .tags-container {
             display: flex;
@@ -736,15 +779,10 @@
 
         // Actualizar timestamp
         function updateTimestamp() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('es-ES', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
+            // Fecha fija: 6 de noviembre de 2025 a las 23:00
             const timestampSpan = document.querySelector('#timestamp span');
             if (timestampSpan) {
-                timestampSpan.textContent = `Actualizado: ${timeString}`;
+                timestampSpan.textContent = 'Actualizado: 6.11.2025 a las 23:00';
             }
         }
     </script>
