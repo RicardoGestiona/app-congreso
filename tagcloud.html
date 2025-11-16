@@ -678,11 +678,9 @@
                     // Calcular maxCount
                     const maxCount = tagArray[0]?.count || 0;
 
-                    // Separar en grupos
-                    const group1 = tagArray.slice(0, 5);   // Posiciones 1-5
-                    const group2 = tagArray.slice(5, 11);  // Posiciones 6-11
-                    const group3 = tagArray.slice(11, 16); // Posiciones 12-16
-                    const rest = tagArray.slice(16);       // Posiciones 17+
+                    // Separar en grupos: primeras 31 visibles, resto ocultas
+                    const visibleTags = tagArray.slice(0, 31);  // Etiquetas 1-31 (hasta "tributaria")
+                    const hiddenTags = tagArray.slice(31);      // Resto de etiquetas
 
                     // Función para generar HTML de etiqueta
                     function generateTagHTML(tag, index, globalIndex) {
@@ -717,37 +715,33 @@
                         `;
                     }
 
-                    // Generar HTML por grupos
-                    let tagsHTML = '';
+                    // Generar HTML para etiquetas visibles (1-31)
+                    let tagsHTML = '<div class="visible-tags">';
+                    visibleTags.forEach((tag, idx) => {
+                        tagsHTML += generateTagHTML(tag, idx, idx);
+                    });
+                    tagsHTML += '</div>';
 
-                    if (group1.length > 0) {
-                        tagsHTML += `
-                            <div class="tag-group">
-                                ${group1.map((tag, idx) => generateTagHTML(tag, idx, idx)).join('')}
-                            </div>
-                        `;
-                    }
+                    // Generar HTML para etiquetas ocultas (32+)
+                    if (hiddenTags.length > 0) {
+                        tagsHTML += '<div class="hidden-tags" id="hidden-tags" style="display: none;">';
+                        hiddenTags.forEach((tag, idx) => {
+                            tagsHTML += generateTagHTML(tag, idx, idx + 31);
+                        });
+                        tagsHTML += '</div>';
 
-                    if (group2.length > 0) {
+                        // Botón "Ver todas"
                         tagsHTML += `
-                            <div class="tag-group">
-                                ${group2.map((tag, idx) => generateTagHTML(tag, idx, idx + 5)).join('')}
-                            </div>
-                        `;
-                    }
-
-                    if (group3.length > 0) {
-                        tagsHTML += `
-                            <div class="tag-group">
-                                ${group3.map((tag, idx) => generateTagHTML(tag, idx, idx + 11)).join('')}
-                            </div>
-                        `;
-                    }
-
-                    if (rest.length > 0) {
-                        tagsHTML += `
-                            <div class="tag-group">
-                                ${rest.map((tag, idx) => generateTagHTML(tag, idx, idx + 16)).join('')}
+                            <div class="show-all-button">
+                                <button class="btn-show-all" id="btn-show-all" onclick="toggleHiddenTags()">
+                                    <span id="btn-text">Ver todas</span>
+                                    <svg id="btn-icon-down" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                    <svg id="btn-icon-up" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                        <polyline points="18 15 12 9 6 15"></polyline>
+                                    </svg>
+                                </button>
                             </div>
                         `;
                     }
@@ -774,6 +768,27 @@
                         <div class="empty-description">No se pudieron cargar las etiquetas</div>
                     </div>
                 `;
+            }
+        }
+
+
+        // Toggle hidden tags
+        function toggleHiddenTags() {
+            const hiddenContainer = document.getElementById('hidden-tags');
+            const btnText = document.getElementById('btn-text');
+            const iconDown = document.getElementById('btn-icon-down');
+            const iconUp = document.getElementById('btn-icon-up');
+            
+            if (hiddenContainer.style.display === 'none') {
+                hiddenContainer.style.display = 'block';
+                btnText.textContent = 'Ver menos';
+                iconDown.style.display = 'none';
+                iconUp.style.display = 'block';
+            } else {
+                hiddenContainer.style.display = 'none';
+                btnText.textContent = 'Ver todas';
+                iconDown.style.display = 'block';
+                iconUp.style.display = 'none';
             }
         }
 
